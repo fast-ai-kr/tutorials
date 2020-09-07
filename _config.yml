@@ -39,8 +39,8 @@ baseurl: "/tutorials" # the subpath of your site, e.g. "/blog".
 # Github and twitter are optional:
 minima:
   social_links:
-    twitter: fastdotai
-    github: fastai
+    twitter: algo_diver
+    github: deep-diver
 
 # Set this to true to get LaTeX math equation support
 use_math: 
@@ -71,7 +71,7 @@ include:
 
 # This specifies what badges are turned on by default for notebook posts.
 default_badges:
-  github: true
+  github: false
   binder: true
   colab: true
 
