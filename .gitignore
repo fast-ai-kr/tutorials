@@ -1,7 +1,9 @@
+*.lock
 *.DS_Store
 *.swp
 ~*
 *~
+_notebooks/node_modules
 _site
 .sass-cache
 .jekyll-cache
