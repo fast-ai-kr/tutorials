@@ -111,7 +111,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      4 min read
+      5 min read
     
 </span></p>
 
@@ -371,6 +371,15 @@ window.onload = wrap_img;
 <h2 id="GrandparentSplitter-function">
 <a class="anchor" href="#GrandparentSplitter-function" aria-hidden="true"><span class="octicon octicon-link"></span></a>GrandparentSplitter function<a class="anchor-link" href="#GrandparentSplitter-function"> </a>
 </h2>
+<p><img src="/tutorials/images/copied_from_nb/ImageDataLoaders/grandparentsplitter.png" alt="grandparent splitter">
+[ what does GrandparentSplitter really returns? ]</p>
+<p><strong><code>GrandparentSplitter</code></strong> is a function that returns diffrent function. It's like you call a function, then you get another function from that call. The returning function is defined as <strong><code>_inner</code></strong>, but when you assign the returning function to a variable, that variable's name becomes the actual function name.</p>
+<div class="highlight"><pre><span></span><span class="n">my_func</span> <span class="o">=</span> <span class="n">GrandparentSplitter</span><span class="p">()</span>
+<span class="n">my_func</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+<p>In the above example code, even though the defined function name is <strong><code>_inner</code></strong>, the variable name, <strong><code>my_func</code></strong> delegates the function <strong><code>_inner</code></strong>.</p>
+<p>So, what <strong><code>GrandparentSplitter</code></strong> really does is to return another function. I will call it as <strong><code>G._inner</code></strong> for convinience. So, the real question gets down to what's the job of <strong><code>G._inner</code></strong> function.</p>
+
 </div>
 </div>
 </div>
@@ -395,8 +404,9 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><code>GrandparentSplitter</code> is a function that wraps up <code>_inner()</code> function defined as a nested function and returns it. <code>_inner()</code> function returns a tuple, each one returns a list of indicies marking where</p>
-<p>Then what does <code>_inner()</code> function do? It actually creates a tuple of two <code>_grandparent_idxs</code> functions. Then, we should look insde <code>_grandparent_idxs</code> function as well. It eventually calls <code>mask2idx</code> function after all.</p>
+<p><strong><code>G._inner</code></strong> takes only one argument, <strong><code>o</code></strong>. However, it uses parameters passed from <strong><code>GrandparentSplitter</code></strong> . That is something called as <strong><em>closer</em></strong>. If you are interested in, please search for it.</p>
+<p>Don't be bothered by the argument name <strong><code>o</code></strong> in <strong><code>G._inner</code></strong>. It simply means items, and the items here means every files. It doesn't matter trainining or validation data files are listed up together.</p>
+<p>Now, <strong><code>G._inner</code></strong> returns two functions of the same type, <strong><code>_grandparent_idxs</code></strong>. Because when we call <strong><code>GrandparentSplitter</code></strong>, it will return <strong><code>G._inner</code></strong>, and when <strong><code>G._inner</code></strong> is called, it will return two <strong><code>_grandparent_idxs</code></strong> functions, the behaviour of <strong><code>_grandparent_idxs</code></strong> is what we really want to know.</p>
 
 </div>
 </div>
