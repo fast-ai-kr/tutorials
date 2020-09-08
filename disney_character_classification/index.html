@@ -166,7 +166,7 @@ window.onload = wrap_img;
 <h1 id="Let's-see-the-definition">
 <a class="anchor" href="#Let's-see-the-definition" aria-hidden="true"><span class="octicon octicon-link"></span></a>Let's see the definition<a class="anchor-link" href="#Let's-see-the-definition"> </a>
 </h1>
-<p>Basic wrapper around several <code>DataLoader</code>s with factory methods for computer vision problems. Don't be bothered by <code>delegates</code> thing for now. I will explain what it is shortly.</p>
+<p>Basic wrapper around several <strong><code>DataLoader</code></strong>s with factory methods for computer vision problems. Don't be bothered by <strong><code>delegates</code></strong> thing for now. I will explain what it is shortly.</p>
 <p>In a nutshell, ImageDataLoaders provides a set of handy class methods to define a set of datasets to be fed into a model. As the plural form of the name indicates, it contains more than one dataset which means multiple datasets such as training/validation/test could be managed in one place.</p>
 
 </div>
@@ -212,22 +212,21 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The name of each class methods explains itself pretty much. However, just remember, those suffixes <code>_xxx</code> simply means how you would like to define labels for each data. For instance, <code>from_folder</code> defines labels of each data by looking up the name of folders. <code>from_path_func</code> provides more flexible way than <code>from_folder</code>. Instead of specifying the folder name, we can actually write a function to extract which part of the path name should be used for labeling.</p>
+<p>The name of each class methods explains itself pretty much. However, just remember, those suffixes <strong><code>_xxx</code></strong> simply means how you would like to define labels for each data. For instance, <strong><code>from_folder</code></strong> defines labels of each data by looking up the name of folders. <strong><code>from_path_func</code></strong> provides more flexible way than <strong><code>from_folder</code></strong>. Instead of specifying the folder name, we can actually write a function to extract which part of the path name should be used for labeling.</p>
 <ul>
-<li>with <code>from_folder</code>, the directory structure should strictly follow like below (the folder name for training/validation could be changed).
+<li>with <strong><code>from_folder</code></strong>, the directory structure should strictly follow like below (the folder name for training/validation could be changed).
 <pre><code>- top_director - training
                - validation</code></pre>
 </li>
-<li>when the directory structure is like below, <code>from_folder</code> can't be used. But you could parse the part of path name to be used as labels via <code>from_path_func</code>.
+<li>when the directory structure is like below, <strong><code>from_folder</code></strong> can't be used. But you could parse the part of path name to be used as labels via <strong><code>from_path_func</code></strong>.
 <pre><code>- top_directory - training - training
                 - validation - validation</code></pre>
 <ul>
-<li>this examples looks silly, but you will soon realize there are many datasets structured in this way. You could either move the files into the parent directory or just simply use <code>from_path_func</code>
-</li>
+<li>this examples looks silly, but you will soon realize there are many datasets structured in this way. You could either move the files into the parent directory or just simply use <strong><code>from_path_func</code></strong>.</li>
 </ul>
 </li>
 </ul>
-<p>Another cool method is <code>from_path_re</code>. It lets you to define labels by leveraging the power of regular expression. Even though you could implement your own regex paring logic in <code>from_path_func</code>, you could avoid from somewhat annoying boilerplates to set up regex with <code>from_path_re</code>.</p>
+<p>Another cool method is <strong><code>from_path_re</code></strong>. It lets you to define labels by leveraging the power of regular expression. Even though you could implement your own regex paring logic in <strong><code>from_path_func</code></strong>, you could avoid from somewhat annoying boilerplates to set up regex with <strong><code>from_path_re</code></strong>.</p>
 
 </div>
 </div>
@@ -240,41 +239,49 @@ window.onload = wrap_img;
 </h2>
 <p>This cell provides a complete description of each class methods scrapped from the official document.</p>
 <ul>
-<li>from_folder(...)<ul>
+<li>
+<strong>from_folder(...)</strong><ul>
 <li>Create from imagenet style dataset in <code>path</code> with <code>train</code> and <code>valid</code> subfolders (or provide <code>valid_pct</code>)</li>
 </ul>
 </li>
-<li>from_path_func(...)<ul>
+<li>
+<strong>from_path_func(...)</strong><ul>
 <li>Create from list of <code>fnames</code> in <code>path</code>s with <code>label_func</code>
 </li>
 </ul>
 </li>
-<li>from_name_func(...)<ul>
+<li>
+<strong>from_name_func(...)</strong><ul>
 <li>Create from the name attrs of <code>fnames</code> in <code>path</code>s with <code>label_func</code>
 </li>
 </ul>
 </li>
-<li>from_path_re(...)<ul>
+<li>
+<strong>from_path_re(...)</strong><ul>
 <li>Create from list of <code>fnames</code> in <code>path</code>s with re expression <code>pat</code>
 </li>
 </ul>
 </li>
-<li>from_name_re(...)<ul>
+<li>
+<strong>from_name_re(...)</strong><ul>
 <li>Create from the name attrs of <code>fnames</code> in <code>path</code>s with re expression <code>pat</code>
 </li>
 </ul>
 </li>
-<li>from_df(...)<ul>
+<li>
+<strong>from_df(...)</strong><ul>
 <li>Create from <code>df</code> using <code>fn_col</code> and <code>label_col</code>
 </li>
 </ul>
 </li>
-<li>from_csv(...)<ul>
+<li>
+<strong>from_csv(...)</strong><ul>
 <li>Create from <code>path/csv_fname</code> using <code>fn_col</code> and <code>label_col</code>
 </li>
 </ul>
 </li>
-<li>from_lists(...)<ul>
+<li>
+<strong>from_lists(...)</strong><ul>
 <li>Create from list of <code>fnames</code> and <code>labels</code> in <code>path</code>
 </li>
 </ul>
@@ -301,8 +308,8 @@ window.onload = wrap_img;
                                       <span class="n">fnames</span> <span class="o">=</span> <span class="n">fnames</span><span class="p">,</span> 
                                       <span class="n">label_func</span> <span class="o">=</span> <span class="n">label_func</span><span class="p">)</span>
 </pre></div>
-<p><code>from_path_func</code> takes three parameters. The <code>path</code> is the path of the root directory of the project. <code>fnames</code> is a list containing all data files. It doesn't matter to include files stored in different sub-directories. Which file should belong to which label is determined via <code>1abel_func</code> function .</p>
-<p>Let's look inside the <code>label_func</code> function. It is clear that it returns the name of the parent directory. For instance, if the path of a file is like <code>datasets/train/image1.png</code>, the label func will return <code>train</code> as the label for the <code>image1.png</code>.</p>
+<p><strong><code>from_path_func</code></strong> takes three parameters. The <strong><code>path</code></strong> is the path of the root directory of the project. <strong><code>fnames</code></strong> is a list containing all data files. It doesn't matter to include files stored in different sub-directories. Which file should belong to which label is determined via <strong><code>1abel_func</code></strong> function .</p>
+<p>Let's look inside the <strong><code>label_func</code></strong> function. It is clear that it returns the name of the parent directory. For instance, if the path of a file is like <strong><code>datasets/train/image1.png</code></strong>, the label func will return <strong><code>train</code></strong> as the label for the <strong><code>image1.png</code></strong>.</p>
 
 </div>
 </div>
