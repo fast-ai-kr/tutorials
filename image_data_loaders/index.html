@@ -142,12 +142,15 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h3"><a href="#Example-usage-with-from_path_func">Example usage with from_path_func </a></li>
 </ul>
 </li>
-<li class="toc-entry toc-h2"><a href="#Let's-look-inside-one-of-them,-from_folder(...)">Let&#39;s look inside one of them, from_folder(...) </a>
+<li class="toc-entry toc-h2"><a href="#Let's-look-inside-one-of-them,-from_folder(...)">Let&#39;s look inside one of them, from_folder(...) </a></li>
+<li class="toc-entry toc-h2"><a href="#GrandparentSplitter-function">GrandparentSplitter function </a></li>
+<li class="toc-entry toc-h2"><a href="#partial(-get_image_files,-folders=[train,-valid]-)">partial( get_image_files, folders=[train, valid] ) </a>
 <ul>
-<li class="toc-entry toc-h3"><a href="#GrandparentSplitter-function">GrandparentSplitter function </a></li>
-<li class="toc-entry toc-h3"><a href="#partial(-get_image_files,-folders=[train,-valid]-)">partial( get_image_files, folders=[train, valid] ) </a></li>
 <li class="toc-entry toc-h3"><a href="#get_image_files">get_image_files </a></li>
-<li class="toc-entry toc-h3"><a href="#DataBlock">DataBlock </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#DataBlock">DataBlock </a>
+<ul>
 <li class="toc-entry toc-h3"><a href="#@funcs_kwargs">@funcs_kwargs </a></li>
 <li class="toc-entry toc-h3"><a href="#Initial-setup-for-blocks">Initial setup for blocks </a></li>
 <li class="toc-entry toc-h3"><a href="#separately-store-item_tfms-and-batch_tfms">separately store item_tfms and batch_tfms </a></li>
@@ -380,9 +383,9 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="GrandparentSplitter-function">
+<h2 id="GrandparentSplitter-function">
 <a class="anchor" href="#GrandparentSplitter-function" aria-hidden="true"><span class="octicon octicon-link"></span></a>GrandparentSplitter function<a class="anchor-link" href="#GrandparentSplitter-function"> </a>
-</h3>
+</h2>
 <p><img src="/tutorials/images/copied_from_nb/ImageDataLoaders/grandparentsplitter.png" alt="grandparent splitter">
 [ what does GrandparentSplitter really returns? ]</p>
 <p><strong><code>GrandparentSplitter</code></strong> is a function that returns diffrent function. It's like you call a function, then you get another function from that call. The returning function is defined as <strong><code>_inner</code></strong>, but when you assign the returning function to a variable, that variable's name becomes the actual function name.</p>
@@ -439,9 +442,9 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="partial(-get_image_files,-folders=[train,-valid]-)">
+<h2 id="partial(-get_image_files,-folders=[train,-valid]-)">
 <a class="anchor" href="#partial(-get_image_files,-folders=%5Btrain,-valid%5D-)" aria-hidden="true"><span class="octicon octicon-link"></span></a>partial( get_image_files, folders=[train, valid] )<a class="anchor-link" href="#partial(-get_image_files,-folders=%5Btrain,-valid%5D-)"> </a>
-</h3>
+</h2>
 </div>
 </div>
 </div>
@@ -505,9 +508,9 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="DataBlock">
+<h2 id="DataBlock">
 <a class="anchor" href="#DataBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a>DataBlock<a class="anchor-link" href="#DataBlock"> </a>
-</h3>
+</h2>
 <p>DataBlock is the core to make datasets feedable into a model. The inside source code is pretty long.</p>
 <div class="highlight"><pre><span></span><span class="nd">@funcs_kwargs</span>
 <span class="k">class</span> <span class="nc">DataBlock</span><span class="p">():</span>
