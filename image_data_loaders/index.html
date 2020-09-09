@@ -111,7 +111,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      7 min read
+      11 min read
     
 </span></p>
 
@@ -148,6 +148,9 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h3"><a href="#partial(-get_image_files,-folders=[train,-valid]-)">partial( get_image_files, folders=[train, valid] ) </a></li>
 <li class="toc-entry toc-h3"><a href="#get_image_files">get_image_files </a></li>
 <li class="toc-entry toc-h3"><a href="#DataBlock">DataBlock </a></li>
+<li class="toc-entry toc-h3"><a href="#@funcs_kwargs">@funcs_kwargs </a></li>
+<li class="toc-entry toc-h3"><a href="#Initial-setup-for-blocks">Initial setup for blocks </a></li>
+<li class="toc-entry toc-h3"><a href="#separately-store-item_tfms-and-batch_tfms">separately store item_tfms and batch_tfms </a></li>
 <li class="toc-entry toc-h3"><a href="#@delegates-decorator">@delegates decorator </a></li>
 </ul>
 </li>
@@ -505,6 +508,218 @@ window.onload = wrap_img;
 <h3 id="DataBlock">
 <a class="anchor" href="#DataBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a>DataBlock<a class="anchor-link" href="#DataBlock"> </a>
 </h3>
+<p>DataBlock is the core to make datasets feedable into a model. The inside source code is pretty long.</p>
+<div class="highlight"><pre><span></span><span class="nd">@funcs_kwargs</span>
+<span class="k">class</span> <span class="nc">DataBlock</span><span class="p">():</span>
+    <span class="s2">"Generic container to quickly build `Datasets` and `DataLoaders`"</span>
+    <span class="n">get_x</span> <span class="o">=</span> <span class="n">get_items</span> <span class="o">=</span> <span class="n">splitter</span> <span class="o">=</span> <span class="n">get_y</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_methods</span> <span class="o">=</span> <span class="s1">'get_items splitter get_y get_x'</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+    <span class="n">blocks</span><span class="p">,</span><span class="n">dl_type</span> <span class="o">=</span> <span class="p">(</span><span class="n">TransformBlock</span><span class="p">,</span><span class="n">TransformBlock</span><span class="p">),</span><span class="n">TfmdDL</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blocks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dl_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">getters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">n_inp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">item_tfms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_tfms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="k">if</span> <span class="n">blocks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">blocks</span><span class="p">)</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="n">b</span><span class="p">()</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">type_tfms</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">attrgot</span><span class="p">(</span><span class="s1">'type_tfms'</span><span class="p">,</span> <span class="n">L</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_item_tfms</span>  <span class="o">=</span> <span class="n">_merge_tfms</span><span class="p">(</span><span class="o">*</span><span class="n">blocks</span><span class="o">.</span><span class="n">attrgot</span><span class="p">(</span><span class="s1">'item_tfms'</span><span class="p">,</span>  <span class="n">L</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_batch_tfms</span> <span class="o">=</span> <span class="n">_merge_tfms</span><span class="p">(</span><span class="o">*</span><span class="n">blocks</span><span class="o">.</span><span class="n">attrgot</span><span class="p">(</span><span class="s1">'batch_tfms'</span><span class="p">,</span> <span class="n">L</span><span class="p">()))</span>
+
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="s1">'dl_type'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dl_type</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">dl_type</span>
+
+        <span class="k">if</span> <span class="n">dl_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dl_type</span> <span class="o">=</span> <span class="n">dl_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataloaders</span> <span class="o">=</span> <span class="n">delegates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dl_type</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataloaders</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dls_kwargs</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="o">*</span><span class="n">blocks</span><span class="o">.</span><span class="n">attrgot</span><span class="p">(</span><span class="s1">'dls_kwargs'</span><span class="p">,</span> <span class="p">{}))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_inp</span> <span class="o">=</span> <span class="n">ifnone</span><span class="p">(</span><span class="n">n_inp</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getters</span> <span class="o">=</span> <span class="n">ifnone</span><span class="p">(</span><span class="n">getters</span><span class="p">,</span> <span class="p">[</span><span class="n">noop</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type_tfms</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_x</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">L</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_x</span><span class="p">))</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_inp</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'...'</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getters</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_inp</span><span class="p">]</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_x</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_y</span><span class="p">:</span>
+            <span class="n">n_targs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getters</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_inp</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">L</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_y</span><span class="p">))</span> <span class="o">!=</span> <span class="n">n_targs</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'...'</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getters</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_inp</span><span class="p">:]</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_y</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'...'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">item_tfms</span><span class="p">,</span> <span class="n">batch_tfms</span><span class="p">)</span>
+</pre></div>
+<p>Let's see lines by lines</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="@funcs_kwargs">
+<a class="anchor" href="#@funcs_kwargs" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>@funcs_kwargs</code><a class="anchor-link" href="#@funcs_kwargs"> </a>
+</h3>
+<div class="highlight"><pre><span></span><span class="nd">@funcs_kwargs</span>
+<span class="k">class</span> <span class="nc">DataBlock</span><span class="p">():</span>    
+    <span class="n">get_x</span> <span class="o">=</span> <span class="n">get_items</span> <span class="o">=</span> <span class="n">splitter</span> <span class="o">=</span> <span class="n">get_y</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_methods</span> <span class="o">=</span> <span class="s1">'get_items splitter get_y get_x'</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</pre></div>
+<p><code>@funcs_kwargs</code> is a decorator defined in <code>fastcore</code> library. When it is set, we can pass a function in a constructor, and that function becomes the class member method. Which function to be allowed is defined in <code>_methods</code> property. <code>_methods</code> property is just a list of string representing function names to be added via constructor.</p>
+<p>Consider this. As you see, class <code>Calc</code> doesn't have a method named <code>minus</code> yet in its definition time.</p>
+<div class="highlight"><pre><span></span><span class="nd">@func_kwargs</span>
+<span class="k">class</span> <span class="nc">Calc</span><span class="p">():</span>
+    <span class="n">_methods</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'minus'</span><span class="p">]</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span> <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">plus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span> <span class="k">return</span> <span class="n">x</span><span class="o">+</span><span class="n">y</span>
+</pre></div>
+<p>However, we can simply add <code>minus</code> function defined outside of the <code>Calc</code> class later and specify as we want it to become a class member method via the constructor.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">minus</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span> <span class="k">return</span> <span class="n">x</span><span class="o">-</span><span class="n">y</span>
+<span class="n">calc</span> <span class="o">=</span> <span class="n">Calc</span><span class="p">(</span><span class="n">minus</span><span class="o">=</span><span class="n">minus</span><span class="p">)</span>
+<span class="n">calc</span><span class="o">.</span><span class="n">minus</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+</pre></div>
+<p>Let's recall that there is <code>**kwargs</code> argument in <code>__init__</code> function of <code>DataBlock</code> class. And also, let's recall we have passed arguments that are not explicitly defined in <code>__init__</code> function when instantiating <code>DataBlock</code> object in <code>from_folder</code> function such as <code>splitter</code>, <code>get_x</code>, <code>get_y</code>, and <code>get_items</code>.</p>
+<p>You probably noticed by now that all those functions are specified in <code>__methods</code> property. When instantiating <code>DataBlock</code> object, it is going to have <code>splitter</code>, <code>get_x</code>, <code>get_y</code>, and <code>get_items</code> as member methods. Without <code>@func_kwargs</code>, we may end up by defining too many class like grandparent, parent, child, .....</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Initial-setup-for-blocks">
+<a class="anchor" href="#Initial-setup-for-blocks" aria-hidden="true"><span class="octicon octicon-link"></span></a>Initial setup for blocks<a class="anchor-link" href="#Initial-setup-for-blocks"> </a>
+</h3>
+<div class="highlight"><pre><span></span><span class="n">blocks</span><span class="p">,</span><span class="n">dl_type</span> <span class="o">=</span> <span class="p">(</span><span class="n">TransformBlock</span><span class="p">,</span><span class="n">TransformBlock</span><span class="p">),</span><span class="n">TfmdDL</span>
+
+<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="n">blocks</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="k">if</span> <span class="n">blocks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">blocks</span><span class="p">)</span>
+    <span class="n">blocks</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="n">b</span><span class="p">()</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+<p>These three lines of code simply re-arrange the contents inside <code>blocks</code> in two steps.</p>
+<ol>
+<li>first, default value for <code>blocks</code> is set as <code>(TransformBlock,TransformBlock)</code>
+</li>
+<li>if nothing is passed into <code>blocks</code> argument in <code>__init__</code>, it will use just default <code>blocks</code>. If not, use the specified <code>blocks</code> instead.</li>
+<li>
+<code>blocks</code> is a tuple, and there could be an arbitrary number of elements in it. Each element could be not only a class type but also a function type. If any is a function type, it will be replaced by its returning value.</li>
+</ol>
+<p>We have specified <code>blocks=(ImageBlock, CategoryBlock(vocab=vocab)</code> in <code>from_folder</code> method. <code>ImageBlock</code> and <code>CategoryBlock</code> are functions, and each one returns <code>TransformBlock</code> object with different setting. So after two lines of code in <code>__init__</code>, the actual blocks content should be like <code>(TransformBlock, TransformBlock)</code></p>
+<p>At this point, we can notaice that function is not the only way. If we want more complex logics, we can subclss <code>TransformBlock</code> and define complex behaviour in it.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ImageBlock</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">PILImage</span><span class="p">):</span>
+    <span class="s2">"A `TransformBlock` for images of `cls`"</span>
+    <span class="k">return</span> <span class="n">TransformBlock</span><span class="p">(</span><span class="n">type_tfms</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">create</span><span class="p">,</span> <span class="n">batch_tfms</span><span class="o">=</span><span class="n">IntToFloatTensor</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">CategoryBlock</span><span class="p">(</span><span class="n">vocab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">add_na</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="s2">"`TransformBlock` for single-label categorical targets"</span>
+    <span class="k">return</span> <span class="n">TransformBlock</span><span class="p">(</span><span class="n">type_tfms</span><span class="o">=</span><span class="n">Categorize</span><span class="p">(</span><span class="n">vocab</span><span class="o">=</span><span class="n">vocab</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">,</span> <span class="n">add_na</span><span class="o">=</span><span class="n">add_na</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="separately-store-item_tfms-and-batch_tfms">
+<a class="anchor" href="#separately-store-item_tfms-and-batch_tfms" aria-hidden="true"><span class="octicon octicon-link"></span></a>separately store <code>item_tfms</code> and <code>batch_tfms</code><a class="anchor-link" href="#separately-store-item_tfms-and-batch_tfms"> </a>
+</h3>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">type_tfms</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">attrgot</span><span class="p">(</span><span class="s1">'type_tfms'</span><span class="p">,</span> <span class="n">L</span><span class="p">())</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">default_item_tfms</span>  <span class="o">=</span> <span class="n">_merge_tfms</span><span class="p">(</span><span class="o">*</span><span class="n">blocks</span><span class="o">.</span><span class="n">attrgot</span><span class="p">(</span><span class="s1">'item_tfms'</span><span class="p">,</span>  <span class="n">L</span><span class="p">()))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">default_batch_tfms</span> <span class="o">=</span> <span class="n">_merge_tfms</span><span class="p">(</span><span class="o">*</span><span class="n">blocks</span><span class="o">.</span><span class="n">attrgot</span><span class="p">(</span><span class="s1">'batch_tfms'</span><span class="p">,</span> <span class="n">L</span><span class="p">()))</span>    
+    <span class="o">...</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="s1">'dl_type'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dl_type</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">dl_type</span>    
+    <span class="o">...</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">if</span> <span class="n">dl_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dl_type</span> <span class="o">=</span> <span class="n">dl_type</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dataloaders</span> <span class="o">=</span> <span class="n">delegates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dl_type</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataloaders</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dls_kwargs</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="o">*</span><span class="n">blocks</span><span class="o">.</span><span class="n">attrgot</span><span class="p">(</span><span class="s1">'dls_kwargs'</span><span class="p">,</span> <span class="p">{}))</span>
+    <span class="o">...</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">n_inp</span> <span class="o">=</span> <span class="n">ifnone</span><span class="p">(</span><span class="n">n_inp</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">getters</span> <span class="o">=</span> <span class="n">ifnone</span><span class="p">(</span><span class="n">getters</span><span class="p">,</span> <span class="p">[</span><span class="n">noop</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type_tfms</span><span class="p">))</span>
+    <span class="o">...</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_x</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">L</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_x</span><span class="p">))</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_inp</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'...'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getters</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_inp</span><span class="p">]</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_x</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_y</span><span class="p">:</span>
+        <span class="n">n_targs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getters</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_inp</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">L</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_y</span><span class="p">))</span> <span class="o">!=</span> <span class="n">n_targs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'...'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getters</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_inp</span><span class="p">:]</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_y</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'...'</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">item_tfms</span><span class="p">,</span> <span class="n">batch_tfms</span><span class="p">)</span>
+</pre></div>
+
 </div>
 </div>
 </div>
