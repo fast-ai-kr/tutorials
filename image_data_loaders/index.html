@@ -135,15 +135,16 @@ window.onload = wrap_img;
 
   <div class="post-content e-content" itemprop="articleBody">
     <ul class="section-nav">
-<li class="toc-entry toc-h1"><a href="#Let's-see-the-definition">Let&#39;s see the definition </a>
+<li class="toc-entry toc-h2"><a href="#Let's-see-the-definition">Let&#39;s see the definition </a>
 <ul>
-<li class="toc-entry toc-h2"><a href="#Each-methods">Each methods </a></li>
-<li class="toc-entry toc-h2"><a href="#Example-usage-with-from_path_func">Example usage with from_path_func </a></li>
+<li class="toc-entry toc-h3"><a href="#Each-methods">Each methods </a></li>
+<li class="toc-entry toc-h3"><a href="#Example-usage-with-from_path_func">Example usage with from_path_func </a></li>
 </ul>
 </li>
-<li class="toc-entry toc-h1"><a href="#Let's-look-inside-one-of-them,-from_folder(...)">Let&#39;s look inside one of them, from_folder(...) </a>
+<li class="toc-entry toc-h2"><a href="#Let's-look-inside-one-of-them,-from_folder(...)">Let&#39;s look inside one of them, from_folder(...) </a>
 <ul>
-<li class="toc-entry toc-h2"><a href="#GrandparentSplitter-function">GrandparentSplitter function </a></li>
+<li class="toc-entry toc-h3"><a href="#GrandparentSplitter-function">GrandparentSplitter function </a></li>
+<li class="toc-entry toc-h3"><a href="#@delegates-decorator">@delegates decorator </a></li>
 </ul>
 </li>
 </ul><!--
@@ -174,9 +175,9 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Let's-see-the-definition">
+<h2 id="Let's-see-the-definition">
 <a class="anchor" href="#Let's-see-the-definition" aria-hidden="true"><span class="octicon octicon-link"></span></a>Let's see the definition<a class="anchor-link" href="#Let's-see-the-definition"> </a>
-</h1>
+</h2>
 <p>Basic wrapper around several <strong><code>DataLoader</code></strong>s with factory methods for computer vision problems. Don't be bothered by <strong><code>delegates</code></strong> thing for now. I will explain what it is shortly.</p>
 <p>In a nutshell, ImageDataLoaders provides a set of handy class methods to define a set of datasets to be fed into a model. As the plural form of the name indicates, it contains more than one dataset which means multiple datasets such as training/validation/test could be managed in one place.</p>
 
@@ -245,9 +246,9 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Each-methods">
+<h3 id="Each-methods">
 <a class="anchor" href="#Each-methods" aria-hidden="true"><span class="octicon octicon-link"></span></a>Each methods<a class="anchor-link" href="#Each-methods"> </a>
-</h2>
+</h3>
 <p>This cell provides a complete description of each class methods scrapped from the official document.</p>
 <ul>
 <li>
@@ -305,9 +306,9 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Example-usage-with-from_path_func">
+<h3 id="Example-usage-with-from_path_func">
 <a class="anchor" href="#Example-usage-with-from_path_func" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example usage with <code>from_path_func</code><a class="anchor-link" href="#Example-usage-with-from_path_func"> </a>
-</h2>
+</h3>
 <p>The example below is borrowed from <a href="https://docs.fast.ai/vision.data.html#ImageDataLoaders.from_path_func">fastai official document</a>.</p>
 <div class="highlight"><pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="s1">'top directory'</span>
 <span class="n">fnames</span> <span class="o">=</span> <span class="s1">'list of files'</span>
@@ -328,9 +329,9 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Let's-look-inside-one-of-them,-from_folder(...)">
+<h2 id="Let's-look-inside-one-of-them,-from_folder(...)">
 <a class="anchor" href="#Let's-look-inside-one-of-them,-from_folder(...)" aria-hidden="true"><span class="octicon octicon-link"></span></a>Let's look inside one of them, <code>from_folder(...)</code><a class="anchor-link" href="#Let's-look-inside-one-of-them,-from_folder(...)"> </a>
-</h1>
+</h2>
 </div>
 </div>
 </div>
@@ -368,9 +369,9 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="GrandparentSplitter-function">
+<h3 id="GrandparentSplitter-function">
 <a class="anchor" href="#GrandparentSplitter-function" aria-hidden="true"><span class="octicon octicon-link"></span></a>GrandparentSplitter function<a class="anchor-link" href="#GrandparentSplitter-function"> </a>
-</h2>
+</h3>
 <p><img src="/tutorials/images/copied_from_nb/ImageDataLoaders/grandparentsplitter.png" alt="grandparent splitter">
 [ what does GrandparentSplitter really returns? ]</p>
 <p><strong><code>GrandparentSplitter</code></strong> is a function that returns diffrent function. It's like you call a function, then you get another function from that call. The returning function is defined as <strong><code>_inner</code></strong>, but when you assign the returning function to a variable, that variable's name becomes the actual function name.</p>
@@ -408,6 +409,15 @@ window.onload = wrap_img;
 <p>Don't be bothered by the argument name <strong><code>o</code></strong> in <strong><code>G._inner</code></strong>. It simply means items, and the items here means every files. It doesn't matter trainining or validation data files are listed up together.</p>
 <p>Now, <strong><code>G._inner</code></strong> returns two functions of the same type, <strong><code>_grandparent_idxs</code></strong>. Because when we call <strong><code>GrandparentSplitter</code></strong>, it will return <strong><code>G._inner</code></strong>, and when <strong><code>G._inner</code></strong> is called, it will return two <strong><code>_grandparent_idxs</code></strong> functions, the behaviour of <strong><code>_grandparent_idxs</code></strong> is what we really want to know.</p>
 
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="@delegates-decorator">
+<a class="anchor" href="#@delegates-decorator" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>@delegates</code> decorator<a class="anchor-link" href="#@delegates-decorator"> </a>
+</h3>
 </div>
 </div>
 </div>
