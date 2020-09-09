@@ -111,7 +111,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      5 min read
+      7 min read
     
 </span></p>
 
@@ -135,6 +135,7 @@ window.onload = wrap_img;
 
   <div class="post-content e-content" itemprop="articleBody">
     <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Why-looking-inside?">Why looking inside? </a></li>
 <li class="toc-entry toc-h2"><a href="#Let's-see-the-definition">Let&#39;s see the definition </a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#Each-methods">Each methods </a></li>
@@ -144,6 +145,9 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h2"><a href="#Let's-look-inside-one-of-them,-from_folder(...)">Let&#39;s look inside one of them, from_folder(...) </a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#GrandparentSplitter-function">GrandparentSplitter function </a></li>
+<li class="toc-entry toc-h3"><a href="#partial(-get_image_files,-folders=[train,-valid]-)">partial( get_image_files, folders=[train, valid] ) </a></li>
+<li class="toc-entry toc-h3"><a href="#get_image_files">get_image_files </a></li>
+<li class="toc-entry toc-h3"><a href="#DataBlock">DataBlock </a></li>
 <li class="toc-entry toc-h3"><a href="#@delegates-decorator">@delegates decorator </a></li>
 </ul>
 </li>
@@ -166,8 +170,10 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="/tutorials/images/copied_from_nb/ImageDataLoaders/from_path_func.png" alt="from_path_func">
-[ ImageDataLoaders.from_path_func ]</p>
+<h2 id="Why-looking-inside?">
+<a class="anchor" href="#Why-looking-inside?" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why looking inside?<a class="anchor-link" href="#Why-looking-inside?"> </a>
+</h2>
+<p>There is a couple of reasons. First, <code>fastai</code> is a wonderful library. It clearly shows how it works in a high-level view. However, when you want to customize its behaviour, the official document is somewhat limited to understand behind scene. Second, <code>fastai</code> comes along with other awesome libraries such as <code>fastcore</code>. You will find very useful and clever programming usage with them. Also it helps you to have strong programability.</p>
 
 </div>
 </div>
@@ -224,6 +230,8 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/tutorials/images/copied_from_nb/ImageDataLoaders/from_path_func.png" alt="from_path_func">
+[ ImageDataLoaders.from_path_func ]</p>
 <p>The name of each class methods explains itself pretty much. However, just remember, those suffixes <strong><code>_xxx</code></strong> simply means how you would like to define labels for each data. For instance, <strong><code>from_folder</code></strong> defines labels of each data by looking up the name of folders. <strong><code>from_path_func</code></strong> provides more flexible way than <strong><code>from_folder</code></strong>. Instead of specifying the folder name, we can actually write a function to extract which part of the path name should be used for labeling.</p>
 <ul>
 <li>with <strong><code>from_folder</code></strong>, the directory structure should strictly follow like below (the folder name for training/validation could be changed).
@@ -405,10 +413,98 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong><code>G._inner</code></strong> takes only one argument, <strong><code>o</code></strong>. However, it uses parameters passed from <strong><code>GrandparentSplitter</code></strong> . That is something called as <strong><em>closer</em></strong>. If you are interested in, please search for it.</p>
-<p>Don't be bothered by the argument name <strong><code>o</code></strong> in <strong><code>G._inner</code></strong>. It simply means items, and the items here means every files. It doesn't matter trainining or validation data files are listed up together.</p>
+<p><strong><code>G._inner</code></strong> takes only one argument, <strong><code>o</code></strong>. However, it uses parameters passed from <strong><code>GrandparentSplitter</code></strong> as well. That is something called as <strong><em>closer</em></strong>. If you are interested in, please search for it.</p>
+<p>Don't be bothered by the argument name <strong><code>o</code></strong> in <strong><code>G._inner</code></strong>. It simply means items, and the items here means every files, trainining or validation data files are listed up together.</p>
 <p>Now, <strong><code>G._inner</code></strong> returns two functions of the same type, <strong><code>_grandparent_idxs</code></strong>. Because when we call <strong><code>GrandparentSplitter</code></strong>, it will return <strong><code>G._inner</code></strong>, and when <strong><code>G._inner</code></strong> is called, it will return two <strong><code>_grandparent_idxs</code></strong> functions, the behaviour of <strong><code>_grandparent_idxs</code></strong> is what we really want to know.</p>
+<p><strong>my thoughts</strong></p>
+<ul>
+<li>
+<strong><code>GrandparentSplitter</code></strong> is nothing but a utility function to provide another function to let you grasp the list of indicies for training and validation datasets.</li>
+<li>We can create our own splitter. It is quite simple.<ul>
+<li>define a function</li>
+<li>make sure the function returns two sets of lists</li>
+<li>make sure each list contains indicies of files (not the filename or something)</li>
+<li>use handy <code>mask2idx</code> function to filter which file belongs to which dataset</li>
+</ul>
+</li>
+</ul>
+<p>I should also mention about <code>mask2idx</code> function. It takes a list of booleans, and it returns a list of integers which indicate the index where the boolean value is <code>True</code>. So this is exactly what we need to get the list of indicies!</p>
 
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="partial(-get_image_files,-folders=[train,-valid]-)">
+<a class="anchor" href="#partial(-get_image_files,-folders=%5Btrain,-valid%5D-)" aria-hidden="true"><span class="octicon octicon-link"></span></a>partial( get_image_files, folders=[train, valid] )<a class="anchor-link" href="#partial(-get_image_files,-folders=%5Btrain,-valid%5D-)"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In order to understand this part, you should understand what <code>partial</code> is first. <code>partial</code> is a great way to define a new function derived from an existing one by substituting values of arguments.</p>
+<p>Below shows what <code>get_image_files</code> function looks like:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_image_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">folders</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="s2">"Get image files in `path` recursively, only in `folders`, if specified."</span>
+    <span class="k">return</span> <span class="n">get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">extensions</span><span class="o">=</span><span class="n">image_extensions</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="n">recurse</span><span class="p">,</span> <span class="n">folders</span><span class="o">=</span><span class="n">folders</span><span class="p">)</span>
+</pre></div>
+<p>As you can see, <code>get_image_files</code> has trhee arguments including <code>folders</code> whose default value is <code>None</code>. However, when we do <code>new_func = partial( get_image_files, folders=[train, valid] )</code> this, it returns a new form of function like</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_image_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="s2">"Get image files in `path` recursively, only in `folders`, if specified."</span>
+    <span class="k">return</span> <span class="n">get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">extensions</span><span class="o">=</span><span class="n">image_extensions</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="n">recurse</span><span class="p">,</span> <span class="n">folders</span><span class="o">=</span><span class="p">[</span><span class="n">train</span><span class="p">,</span> <span class="n">valid</span><span class="p">])</span>
+</pre></div>
+<p>From this point, we just can call <code>new_func()</code> without passing values into <code>folders</code> anymore.</p>
+<p><strong>why need <code>partial</code>?</strong></p>
+<ul>
+<li>Remember <code>partial</code> gives you a new template of a function. It doesn't call the function with different values. Without <code>partial</code> we should explicitly call the function with specific values where we actually need to call. Lots of conditionaly statements may be required. </li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="get_image_files">
+<a class="anchor" href="#get_image_files" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_image_files<a class="anchor-link" href="#get_image_files"> </a>
+</h3>
+<p><code>get_image_files</code> gets all image type files under specified folders. It recursively collectes files in the sub-directories as well. The targeting image file extensions are all image types defined in <code>memetypes</code>. The following block shows what are they:</p>
+<div class="highlight"><pre><span></span><span class="n">types_map</span> <span class="o">=</span> <span class="p">{</span> <span class="c1"># from Python's official source file</span>
+                  <span class="c1"># https://svn.python.org/projects/python/trunk/Lib/mimetypes.py</span>
+        <span class="s1">'.bmp'</span>    <span class="p">:</span> <span class="s1">'image/x-ms-bmp'</span><span class="p">,</span>
+        <span class="s1">'.gif'</span>    <span class="p">:</span> <span class="s1">'image/gif'</span><span class="p">,</span>
+        <span class="s1">'.ief'</span>    <span class="p">:</span> <span class="s1">'image/ief'</span><span class="p">,</span>
+        <span class="s1">'.jpe'</span>    <span class="p">:</span> <span class="s1">'image/jpeg'</span><span class="p">,</span>
+        <span class="s1">'.jpeg'</span>   <span class="p">:</span> <span class="s1">'image/jpeg'</span><span class="p">,</span>
+        <span class="s1">'.jpg'</span>    <span class="p">:</span> <span class="s1">'image/jpeg'</span><span class="p">,</span>
+        <span class="s1">'.pbm'</span>    <span class="p">:</span> <span class="s1">'image/x-portable-bitmap'</span><span class="p">,</span>
+        <span class="s1">'.pgm'</span>    <span class="p">:</span> <span class="s1">'image/x-portable-graymap'</span><span class="p">,</span>
+        <span class="s1">'.png'</span>    <span class="p">:</span> <span class="s1">'image/png'</span><span class="p">,</span>
+        <span class="s1">'.pnm'</span>    <span class="p">:</span> <span class="s1">'image/x-portable-anymap'</span><span class="p">,</span>
+        <span class="s1">'.ppm'</span>    <span class="p">:</span> <span class="s1">'image/x-portable-pixmap'</span><span class="p">,</span>
+        <span class="s1">'.ras'</span>    <span class="p">:</span> <span class="s1">'image/x-cmu-raster'</span><span class="p">,</span>
+        <span class="s1">'.rgb'</span>    <span class="p">:</span> <span class="s1">'image/x-rgb'</span><span class="p">,</span>
+        <span class="s1">'.tif'</span>    <span class="p">:</span> <span class="s1">'image/tiff'</span><span class="p">,</span>
+        <span class="s1">'.tiff'</span>   <span class="p">:</span> <span class="s1">'image/tiff'</span><span class="p">,</span>
+        <span class="s1">'.xbm'</span>    <span class="p">:</span> <span class="s1">'image/x-xbitmap'</span><span class="p">,</span>
+        <span class="s1">'.xpm'</span>    <span class="p">:</span> <span class="s1">'image/x-xpixmap'</span><span class="p">,</span>
+        <span class="s1">'.xwd'</span>    <span class="p">:</span> <span class="s1">'image/x-xwindowdump'</span><span class="p">,</span>
+        <span class="p">}</span>
+</pre></div>
+<p>In <code>get_image_files(folders=['train', 'valid'])</code> case, it looks for every image files under <code>train</code> and <code>valid</code> folders, and return the list of identified image files.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="DataBlock">
+<a class="anchor" href="#DataBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a>DataBlock<a class="anchor-link" href="#DataBlock"> </a>
+</h3>
 </div>
 </div>
 </div>
