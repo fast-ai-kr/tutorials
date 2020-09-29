@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Look inside DataBlock | tutorials from fast.ai KR</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Look inside DataBlock" />
+<meta name="author" content="Chansung Park" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Let’s dig into DataBlock source code. By doing this, we could define our custom DataBlock class that fits to our problems." />
+<meta property="og:description" content="Let’s dig into DataBlock source code. By doing this, we could define our custom DataBlock class that fits to our problems." />
+<link rel="canonical" href="https://fast-ai-kr.github.io/tutorials/data_block/" />
+<meta property="og:url" content="https://fast-ai-kr.github.io/tutorials/data_block/" />
+<meta property="og:site_name" content="tutorials from fast.ai KR" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-09-28T00:00:00-05:00" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Chansung Park"},"description":"Let’s dig into DataBlock source code. By doing this, we could define our custom DataBlock class that fits to our problems.","@type":"BlogPosting","headline":"Look inside DataBlock","dateModified":"2020-09-28T00:00:00-05:00","datePublished":"2020-09-28T00:00:00-05:00","url":"https://fast-ai-kr.github.io/tutorials/data_block/","mainEntityOfPage":{"@type":"WebPage","@id":"https://fast-ai-kr.github.io/tutorials/data_block/"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/tutorials/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://fast-ai-kr.github.io/tutorials/feed.xml" title="tutorials from fast.ai KR" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-177394312-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<link rel="shortcut icon" type="image/x-icon" href="/tutorials/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Look inside DataBlock | tutorials from fast.ai KR</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Look inside DataBlock" />
+<meta name="author" content="Chansung Park" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Let’s dig into DataBlock source code. By doing this, we could define our custom DataBlock class that fits to our problems." />
+<meta property="og:description" content="Let’s dig into DataBlock source code. By doing this, we could define our custom DataBlock class that fits to our problems." />
+<link rel="canonical" href="https://fast-ai-kr.github.io/tutorials/data_block/" />
+<meta property="og:url" content="https://fast-ai-kr.github.io/tutorials/data_block/" />
+<meta property="og:site_name" content="tutorials from fast.ai KR" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-09-28T00:00:00-05:00" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Chansung Park"},"description":"Let’s dig into DataBlock source code. By doing this, we could define our custom DataBlock class that fits to our problems.","@type":"BlogPosting","headline":"Look inside DataBlock","dateModified":"2020-09-28T00:00:00-05:00","datePublished":"2020-09-28T00:00:00-05:00","url":"https://fast-ai-kr.github.io/tutorials/data_block/","mainEntityOfPage":{"@type":"WebPage","@id":"https://fast-ai-kr.github.io/tutorials/data_block/"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://fast-ai-kr.github.io/tutorials/feed.xml" title="tutorials from fast.ai KR" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-177394312-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/tutorials/">tutorials from fast.ai KR</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/tutorials/about/">About Me</a><a class="page-link" href="/tutorials/search/">Search</a><a class="page-link" href="/tutorials/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Look inside DataBlock</h1><p class="page-description">Let's dig into DataBlock source code. By doing this, we could define our custom DataBlock class that fits to our problems.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-09-28T00:00:00-05:00" itemprop="datePublished">
+        Sep 28, 2020
+      </time>• 
+          <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span class="p-author h-card" itemprop="name">Chansung Park</span></span>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      5 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/tutorials/categories/#data">data</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/tutorials/categories/#fastai">fastai</a>
+        
+      
+      </p>
+    
+
+    
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#ImageBlock">ImageBlock </a></li>
+<li class="toc-entry toc-h2"><a href="#CategoryBlock">CategoryBlock </a></li>
+<li class="toc-entry toc-h1"><a href="#Other-Block-(Official)">Other Block (Official) </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#PointBlock">PointBlock </a></li>
+<li class="toc-entry toc-h2"><a href="#MaskBlock">MaskBlock </a></li>
+<li class="toc-entry toc-h2"><a href="#BBoxBlock">BBoxBlock </a></li>
+<li class="toc-entry toc-h2"><a href="#BBoxLblBlock">BBoxLblBlock </a></li>
+<li class="toc-entry toc-h2"><a href="#MultiCategoryBlock">MultiCategoryBlock </a></li>
+<li class="toc-entry toc-h2"><a href="#TextBlock">TextBlock </a></li>
+</ul>
+</li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-09-28-DataBlock.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dblock</span> <span class="o">=</span> <span class="n">DataBlock</span><span class="p">(</span><span class="n">blocks</span><span class="o">=</span><span class="p">(</span><span class="n">ImageBlock</span><span class="p">,</span> <span class="n">CategoryBlock</span><span class="p">),</span>
+                   <span class="n">get_items</span><span class="o">=</span><span class="n">get_image_files</span><span class="p">,</span>
+                   <span class="n">get_y</span><span class="o">=</span><span class="n">parent_label</span><span class="p">,</span>
+                   <span class="n">item_tfms</span><span class="o">=</span><span class="n">Resize</span><span class="p">(</span><span class="mi">224</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dblock</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Setting-up type transforms pipelines
+Collecting items from /home/ubuntu/.fastai/data/oxford-iiit-pet
+Found 14780 items
+2 datasets of sizes 11824,2956
+Setting up Pipeline: PILBase.create
+Setting up Pipeline: parent_label -&gt; Categorize -- {'vocab': None, 'sort': True, 'add_na': False}
+
+Building one sample
+  Pipeline: PILBase.create
+    starting from
+      /home/ubuntu/.fastai/data/oxford-iiit-pet/images/japanese_chin_188.jpg
+    applying PILBase.create gives
+      PILImage mode=RGB size=500x375
+  Pipeline: parent_label -&gt; Categorize -- {'vocab': None, 'sort': True, 'add_na': False}
+    starting from
+      /home/ubuntu/.fastai/data/oxford-iiit-pet/images/japanese_chin_188.jpg
+    applying parent_label gives
+      images
+    applying Categorize -- {'vocab': None, 'sort': True, 'add_na': False} gives
+      TensorCategory(0)
+
+Final sample: (PILImage mode=RGB size=500x375, TensorCategory(0))
+
+
+Setting up after_item: Pipeline: Resize -- {'size': (224, 224), 'method': 'crop', 'pad_mode': 'reflection', 'resamples': (2, 0), 'p': 1.0} -&gt; ToTensor
+Setting up before_batch: Pipeline: 
+Setting up after_batch: Pipeline: IntToFloatTensor -- {'div': 255.0, 'div_mask': 1}
+
+Building one batch
+Applying item_tfms to the first sample:
+  Pipeline: Resize -- {'size': (224, 224), 'method': 'crop', 'pad_mode': 'reflection', 'resamples': (2, 0), 'p': 1.0} -&gt; ToTensor
+    starting from
+      (PILImage mode=RGB size=500x375, TensorCategory(0))
+    applying Resize -- {'size': (224, 224), 'method': 'crop', 'pad_mode': 'reflection', 'resamples': (2, 0), 'p': 1.0} gives
+      (PILImage mode=RGB size=224x224, TensorCategory(0))
+    applying ToTensor gives
+      (TensorImage of size 3x224x224, TensorCategory(0))
+
+Adding the next 3 samples
+
+No before_batch transform to apply
+
+Collating items in a batch
+
+Applying batch_tfms to the batch built
+  Pipeline: IntToFloatTensor -- {'div': 255.0, 'div_mask': 1}
+    starting from
+      (TensorImage of size 4x3x224x224, TensorCategory([0, 1, 0, 1], device='cuda:0'))
+    applying IntToFloatTensor -- {'div': 255.0, 'div_mask': 1} gives
+      (TensorImage of size 4x3x224x224, TensorCategory([0, 1, 0, 1], device='cuda:0'))
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="ImageBlock">
+<a class="anchor" href="#ImageBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/fastai/fastai/blob/master/fastai/vision/data.py#L57">ImageBlock</a><a class="anchor-link" href="#ImageBlock"> </a>
+</h2>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ImageBlock</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">PILImage</span><span class="p">):</span>
+    <span class="s2">"A `TransformBlock` for images of `cls`"</span>
+    <span class="k">return</span> <span class="n">TransformBlock</span><span class="p">(</span><span class="n">type_tfms</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">create</span><span class="p">,</span> <span class="n">batch_tfms</span><span class="o">=</span><span class="n">IntToFloatTensor</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">TransformBlock</span><span class="p">():</span>
+    <span class="s2">"A basic wrapper that links defaults transforms for the data block API"</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_tfms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">item_tfms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_tfms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dl_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dls_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type_tfms</span>  <span class="o">=</span>            <span class="n">L</span><span class="p">(</span><span class="n">type_tfms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">item_tfms</span>  <span class="o">=</span> <span class="n">ToTensor</span> <span class="o">+</span> <span class="n">L</span><span class="p">(</span><span class="n">item_tfms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_tfms</span> <span class="o">=</span>            <span class="n">L</span><span class="p">(</span><span class="n">batch_tfms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dl_type</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">dls_kwargs</span> <span class="o">=</span> <span class="n">dl_type</span><span class="p">,({}</span> <span class="k">if</span> <span class="n">dls_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">dls_kwargs</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">PILBase</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">BypassNewMeta</span><span class="p">):</span>
+    <span class="n">_bypass_type</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">Image</span>
+    <span class="n">_show_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'cmap'</span><span class="p">:</span><span class="s1">'viridis'</span><span class="p">}</span>
+    <span class="n">_open_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'mode'</span><span class="p">:</span> <span class="s1">'RGB'</span><span class="p">}</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fn</span><span class="p">:(</span><span class="n">Path</span><span class="p">,</span><span class="nb">str</span><span class="p">,</span><span class="n">Tensor</span><span class="p">,</span><span class="n">ndarray</span><span class="p">,</span><span class="nb">bytes</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="s2">"Open an `Image` from path `fn`"</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span><span class="n">TensorImage</span><span class="p">):</span> <span class="n">fn</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">TensorMask</span><span class="p">):</span> <span class="n">fn</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span><span class="n">Tensor</span><span class="p">):</span> <span class="n">fn</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span><span class="n">ndarray</span><span class="p">):</span> <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span><span class="nb">bytes</span><span class="p">):</span> <span class="n">fn</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">load_image</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="o">**</span><span class="n">merge</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_open_args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="s2">"Show image using `merge(self._show_args, kwargs)`"</span>
+        <span class="k">return</span> <span class="n">show_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">,</span> <span class="o">**</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_show_args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> mode=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s1"> size=</span><span class="si">{</span><span class="s2">"x"</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">])</span><span class="si">}</span><span class="s1">'</span>
+
+<span class="k">class</span> <span class="nc">PILImage</span><span class="p">(</span><span class="n">PILBase</span><span class="p">):</span> <span class="k">pass</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="CategoryBlock">
+<a class="anchor" href="#CategoryBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/fastai/fastai/blob/603f1c32a5e4b0f8ec47c7e3a1a8278a0b45a170/fastai/data/block.py#L22">CategoryBlock</a><a class="anchor-link" href="#CategoryBlock"> </a>
+</h2>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">CategoryBlock</span><span class="p">(</span><span class="n">vocab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">add_na</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="s2">"`TransformBlock` for single-label categorical targets"</span>
+    <span class="k">return</span> <span class="n">TransformBlock</span><span class="p">(</span><span class="n">type_tfms</span><span class="o">=</span><span class="n">Categorize</span><span class="p">(</span><span class="n">vocab</span><span class="o">=</span><span class="n">vocab</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">,</span> <span class="n">add_na</span><span class="o">=</span><span class="n">add_na</span><span class="p">))</span>
+
+<span class="k">class</span> <span class="nc">Categorize</span><span class="p">(</span><span class="n">DisplayedTransform</span><span class="p">):</span>
+    <span class="s2">"Reversible transform of category string to `vocab` id"</span>
+    <span class="n">loss_func</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">CrossEntropyLossFlat</span><span class="p">(),</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vocab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">add_na</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">vocab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="n">vocab</span> <span class="o">=</span> <span class="n">CategoryMap</span><span class="p">(</span><span class="n">vocab</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">,</span> <span class="n">add_na</span><span class="o">=</span><span class="n">add_na</span><span class="p">)</span>
+        <span class="n">store_attr</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">setups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dsets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="o">=</span> <span class="n">CategoryMap</span><span class="p">(</span><span class="n">dsets</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">add_na</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">add_na</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">encodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TensorCategory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">o2i</span><span class="p">[</span><span class="n">o</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Label '</span><span class="si">{</span><span class="n">o</span><span class="si">}</span><span class="s2">' was not included in the training dataset"</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+    <span class="k">def</span> <span class="nf">decodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span> <span class="k">return</span> <span class="n">Category</span>      <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span>    <span class="p">[</span><span class="n">o</span><span class="p">])</span>
+
+<span class="k">class</span> <span class="nc">CategoryMap</span><span class="p">(</span><span class="n">CollBase</span><span class="p">):</span>
+    <span class="s2">"Collection of categories with the reverse mapping in `o2i`"</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">add_na</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_categorical_dtype</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">categories</span><span class="p">,</span> <span class="n">use_list</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1">#Remove non-used categories while keeping order</span>
+            <span class="k">if</span> <span class="n">strict</span><span class="p">:</span> <span class="n">items</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">items</span> <span class="k">if</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">col</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">col</span><span class="p">,</span><span class="s1">'unique'</span><span class="p">):</span> <span class="n">col</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">use_list</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># `o==o` is the generalized definition of non-NaN used by Pandas</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">col</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="k">if</span> <span class="n">o</span><span class="o">==</span><span class="n">o</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sort</span><span class="p">:</span> <span class="n">items</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">sorted</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">items</span> <span class="o">=</span> <span class="s1">'#na#'</span> <span class="o">+</span> <span class="n">items</span> <span class="k">if</span> <span class="n">add_na</span> <span class="k">else</span> <span class="n">items</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">o2i</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">val2idx</span><span class="p">())</span> <span class="k">if</span> <span class="n">add_na</span> <span class="k">else</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">val2idx</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">map_objs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">objs</span><span class="p">):</span>
+        <span class="s2">"Map `objs` to IDs"</span>
+        <span class="k">return</span> <span class="n">L</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o2i</span><span class="p">[</span><span class="n">o</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">map_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ids</span><span class="p">):</span>
+        <span class="s2">"Map `ids` to objects in vocab"</span>
+        <span class="k">return</span> <span class="n">L</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">o</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">b</span><span class="p">):</span> <span class="k">return</span> <span class="n">all_equal</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Other-Block-(Official)">
+<a class="anchor" href="#Other-Block-(Official)" aria-hidden="true"><span class="octicon octicon-link"></span></a>Other Block (Official)<a class="anchor-link" href="#Other-Block-(Official)"> </a>
+</h1>
+<p>General</p>
+<ul>
+<li>CategoryBlock</li>
+<li>MultiCategoryBlock</li>
+<li>RegressionBlock</li>
+</ul>
+<p>Computer Vision</p>
+<ul>
+<li>ImageBlock</li>
+<li>MaskBlock</li>
+<li>PointBlock</li>
+<li>BBoxBlock</li>
+<li>BBoxLblBlock</li>
+</ul>
+<p>NLP</p>
+<ul>
+<li>TextBlock</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="PointBlock">
+<a class="anchor" href="#PointBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/fastai/fastai/blob/603f1c32a5e4b0f8ec47c7e3a1a8278a0b45a170/fastai/vision/data.py#L67">PointBlock</a><a class="anchor-link" href="#PointBlock"> </a>
+</h2>
+<div class="highlight"><pre><span></span><span class="n">PointBlock</span> <span class="o">=</span> <span class="n">TransformBlock</span><span class="p">(</span><span class="n">type_tfms</span><span class="o">=</span><span class="n">TensorPoint</span><span class="o">.</span><span class="n">create</span><span class="p">,</span> <span class="n">item_tfms</span><span class="o">=</span><span class="n">PointScaler</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="MaskBlock">
+<a class="anchor" href="#MaskBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/fastai/fastai/blob/603f1c32a5e4b0f8ec47c7e3a1a8278a0b45a170/fastai/vision/data.py#L62">MaskBlock</a><a class="anchor-link" href="#MaskBlock"> </a>
+</h2>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">MaskBlock</span><span class="p">(</span><span class="n">codes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="s2">"A `TransformBlock` for segmentation masks, potentially with `codes`"</span>
+    <span class="k">return</span> <span class="n">TransformBlock</span><span class="p">(</span><span class="n">type_tfms</span><span class="o">=</span><span class="n">PILMask</span><span class="o">.</span><span class="n">create</span><span class="p">,</span> <span class="n">item_tfms</span><span class="o">=</span><span class="n">AddMaskCodes</span><span class="p">(</span><span class="n">codes</span><span class="o">=</span><span class="n">codes</span><span class="p">),</span> <span class="n">batch_tfms</span><span class="o">=</span><span class="n">IntToFloatTensor</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">PILMask</span><span class="p">(</span><span class="n">PILBase</span><span class="p">):</span> <span class="n">_open_args</span><span class="p">,</span><span class="n">_show_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'mode'</span><span class="p">:</span><span class="s1">'L'</span><span class="p">},{</span><span class="s1">'alpha'</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">'cmap'</span><span class="p">:</span><span class="s1">'tab20'</span><span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">AddMaskCodes</span><span class="p">(</span><span class="n">Transform</span><span class="p">):</span>
+    <span class="s2">"Add the code metadata to a `TensorMask`"</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">codes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">codes</span> <span class="o">=</span> <span class="n">codes</span>
+        <span class="k">if</span> <span class="n">codes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">codes</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">decodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">:</span><span class="n">TensorMask</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">codes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">_meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'codes'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">codes</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">o</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="BBoxBlock">
+<a class="anchor" href="#BBoxBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/fastai/fastai/blob/603f1c32a5e4b0f8ec47c7e3a1a8278a0b45a170/fastai/vision/data.py#L68">BBoxBlock</a><a class="anchor-link" href="#BBoxBlock"> </a>
+</h2>
+<div class="highlight"><pre><span></span><span class="n">BBoxBlock</span> <span class="o">=</span> <span class="n">TransformBlock</span><span class="p">(</span><span class="n">type_tfms</span><span class="o">=</span><span class="n">TensorBBox</span><span class="o">.</span><span class="n">create</span><span class="p">,</span> <span class="n">item_tfms</span><span class="o">=</span><span class="n">PointScaler</span><span class="p">,</span> <span class="n">dls_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'before_batch'</span><span class="p">:</span> <span class="n">bb_pad</span><span class="p">})</span>
+
+<span class="k">class</span> <span class="nc">TensorBBox</span><span class="p">(</span><span class="n">TensorPoint</span><span class="p">):</span>
+    <span class="s2">"Basic type for a tensor of bounding boxes in an image"</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">img_size</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">(),</span> <span class="n">img_size</span><span class="o">=</span><span class="n">img_size</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span> <span class="n">_draw_rect</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">hw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ctx</span>
+
+<span class="k">class</span> <span class="nc">PointScaler</span><span class="p">(</span><span class="n">Transform</span><span class="p">):</span>
+    <span class="s2">"Scale a tensor representing points"</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">do_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">y_first</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_scale</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">y_first</span> <span class="o">=</span> <span class="n">do_scale</span><span class="p">,</span><span class="n">y_first</span>
+    <span class="k">def</span> <span class="nf">_grab_sz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">_get_sz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">sz</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get_meta</span><span class="p">(</span><span class="s1">'img_size'</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">sz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">sz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Size could not be inferred, pass it in the init of your TensorPoint with `img_size=...`"</span>
+        <span class="k">return</span> <span class="n">sz</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sz</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">sz</span>
+
+    <span class="k">def</span> <span class="nf">setups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dl</span><span class="p">):</span>
+        <span class="n">its</span> <span class="o">=</span> <span class="n">dl</span><span class="o">.</span><span class="n">do_item</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">its</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">TensorPoint</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">encodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:(</span><span class="n">PILBase</span><span class="p">,</span><span class="n">TensorImageBase</span><span class="p">)):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grab_sz</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">decodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:(</span><span class="n">PILBase</span><span class="p">,</span><span class="n">TensorImageBase</span><span class="p">)):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grab_sz</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">encodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">TensorPoint</span><span class="p">):</span> <span class="k">return</span> <span class="n">_scale_pnts</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sz</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_first</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">decodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">TensorPoint</span><span class="p">):</span> <span class="k">return</span> <span class="n">_unscale_pnts</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sz</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+</pre></div>
+<h2 id="BBoxLblBlock">
+<a class="anchor" href="#BBoxLblBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/fastai/fastai/blob/603f1c32a5e4b0f8ec47c7e3a1a8278a0b45a170/fastai/vision/data.py#L74">BBoxLblBlock</a><a class="anchor-link" href="#BBoxLblBlock"> </a>
+</h2>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">BBoxLblBlock</span><span class="p">(</span><span class="n">vocab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_na</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="s2">"A `TransformBlock` for labeled bounding boxes, potentially with `vocab`"</span>
+    <span class="k">return</span> <span class="n">TransformBlock</span><span class="p">(</span><span class="n">type_tfms</span><span class="o">=</span><span class="n">MultiCategorize</span><span class="p">(</span><span class="n">vocab</span><span class="o">=</span><span class="n">vocab</span><span class="p">,</span> <span class="n">add_na</span><span class="o">=</span><span class="n">add_na</span><span class="p">),</span> <span class="n">item_tfms</span><span class="o">=</span><span class="n">BBoxLabeler</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">BBoxLabeler</span><span class="p">(</span><span class="n">Transform</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dl</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="o">=</span> <span class="n">dl</span><span class="o">.</span><span class="n">vocab</span>
+
+    <span class="k">def</span> <span class="nf">decode</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">lbls</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span><span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span><span class="s1">'decodes'</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">decodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">TensorMultiCategory</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lbls</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">LabeledBBox</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lbls</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">decodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">TensorBBox</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lbls</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">LabeledBBox</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lbls</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="MultiCategoryBlock">
+<a class="anchor" href="#MultiCategoryBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/fastai/fastai/blob/603f1c32a5e4b0f8ec47c7e3a1a8278a0b45a170/fastai/data/block.py#L27">MultiCategoryBlock</a><a class="anchor-link" href="#MultiCategoryBlock"> </a>
+</h2>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">MultiCategoryBlock</span><span class="p">(</span><span class="n">encoded</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">vocab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_na</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="s2">"`TransformBlock` for multi-label categorical targets"</span>
+    <span class="n">tfm</span> <span class="o">=</span> <span class="n">EncodedMultiCategorize</span><span class="p">(</span><span class="n">vocab</span><span class="o">=</span><span class="n">vocab</span><span class="p">)</span> <span class="k">if</span> <span class="n">encoded</span> <span class="k">else</span> <span class="p">[</span><span class="n">MultiCategorize</span><span class="p">(</span><span class="n">vocab</span><span class="o">=</span><span class="n">vocab</span><span class="p">,</span> <span class="n">add_na</span><span class="o">=</span><span class="n">add_na</span><span class="p">),</span> <span class="n">OneHotEncode</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">TransformBlock</span><span class="p">(</span><span class="n">type_tfms</span><span class="o">=</span><span class="n">tfm</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="TextBlock">
+<a class="anchor" href="#TextBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/fastai/fastai/blob/603f1c32a5e4b0f8ec47c7e3a1a8278a0b45a170/fastai/text/data.py#L191">TextBlock</a><a class="anchor-link" href="#TextBlock"> </a>
+</h2>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TextBlock</span><span class="p">(</span><span class="n">TransformBlock</span><span class="p">):</span>
+    <span class="s2">"A `TransformBlock` for texts"</span>
+    <span class="nd">@delegates</span><span class="p">(</span><span class="n">Numericalize</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tok_tfm</span><span class="p">,</span> <span class="n">vocab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_lm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seq_len</span><span class="o">=</span><span class="mi">72</span><span class="p">,</span> <span class="n">backwards</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">type_tfms</span> <span class="o">=</span> <span class="p">[</span><span class="n">tok_tfm</span><span class="p">,</span> <span class="n">Numericalize</span><span class="p">(</span><span class="n">vocab</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">backwards</span><span class="p">:</span> <span class="n">type_tfms</span> <span class="o">+=</span> <span class="p">[</span><span class="n">reverse_text</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">type_tfms</span><span class="o">=</span><span class="n">type_tfms</span><span class="p">,</span>
+                                <span class="n">dl_type</span><span class="o">=</span><span class="n">LMDataLoader</span> <span class="k">if</span> <span class="n">is_lm</span> <span class="k">else</span> <span class="n">SortedDL</span><span class="p">,</span>
+                                <span class="n">dls_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">'seq_len'</span><span class="p">:</span> <span class="n">seq_len</span><span class="p">}</span> <span class="k">if</span> <span class="n">is_lm</span> <span class="k">else</span> <span class="p">{</span><span class="s1">'before_batch'</span><span class="p">:</span> <span class="n">partial</span><span class="p">(</span><span class="n">pad_input_chunk</span><span class="p">,</span> <span class="n">seq_len</span><span class="o">=</span><span class="n">seq_len</span><span class="p">)})</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@delegates</span><span class="p">(</span><span class="n">Tokenizer</span><span class="o">.</span><span class="n">from_df</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">from_df</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">text_cols</span><span class="p">,</span> <span class="n">vocab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_lm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seq_len</span><span class="o">=</span><span class="mi">72</span><span class="p">,</span> <span class="n">backwards</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_freq</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">max_vocab</span><span class="o">=</span><span class="mi">60000</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="s2">"Build a `TextBlock` from a dataframe using `text_cols`"</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">Tokenizer</span><span class="o">.</span><span class="n">from_df</span><span class="p">(</span><span class="n">text_cols</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">vocab</span><span class="o">=</span><span class="n">vocab</span><span class="p">,</span> <span class="n">is_lm</span><span class="o">=</span><span class="n">is_lm</span><span class="p">,</span> <span class="n">seq_len</span><span class="o">=</span><span class="n">seq_len</span><span class="p">,</span>
+                   <span class="n">backwards</span><span class="o">=</span><span class="n">backwards</span><span class="p">,</span> <span class="n">min_freq</span><span class="o">=</span><span class="n">min_freq</span><span class="p">,</span> <span class="n">max_vocab</span><span class="o">=</span><span class="n">max_vocab</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@delegates</span><span class="p">(</span><span class="n">Tokenizer</span><span class="o">.</span><span class="n">from_folder</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">from_folder</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">vocab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_lm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seq_len</span><span class="o">=</span><span class="mi">72</span><span class="p">,</span> <span class="n">backwards</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_freq</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">max_vocab</span><span class="o">=</span><span class="mi">60000</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="s2">"Build a `TextBlock` from a `path`"</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">Tokenizer</span><span class="o">.</span><span class="n">from_folder</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">vocab</span><span class="o">=</span><span class="n">vocab</span><span class="p">,</span> <span class="n">is_lm</span><span class="o">=</span><span class="n">is_lm</span><span class="p">,</span> <span class="n">seq_len</span><span class="o">=</span><span class="n">seq_len</span><span class="p">,</span>
+                   <span class="n">backwards</span><span class="o">=</span><span class="n">backwards</span><span class="p">,</span> <span class="n">min_freq</span><span class="o">=</span><span class="n">min_freq</span><span class="p">,</span> <span class="n">max_vocab</span><span class="o">=</span><span class="n">max_vocab</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="fast-ai-kr/tutorials"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/tutorials/data_block/" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/tutorials/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/tutorials/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/tutorials/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/deep-diver" title="deep-diver"><svg class="svg-icon grey"><use xlink:href="/tutorials/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/algo_diver" title="algo_diver"><svg class="svg-icon grey"><use xlink:href="/tutorials/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
