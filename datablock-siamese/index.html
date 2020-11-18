@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>데이터 블록 만드는 법 (1) | tutorials from fast.ai KR</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="데이터 블록 만드는 법 (1)" />
+<meta name="author" content="Chansung Park" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다." />
+<meta property="og:description" content="fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다." />
+<link rel="canonical" href="https://fast-ai-kr.github.io/tutorials/datablock-siamese/" />
+<meta property="og:url" content="https://fast-ai-kr.github.io/tutorials/datablock-siamese/" />
+<meta property="og:site_name" content="tutorials from fast.ai KR" />
+<meta property="og:image" content="https://fast-ai-kr.github.io/tutorials/images/datablock/siamese-block.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-11-18T00:00:00-06:00" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Chansung Park"},"description":"fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다.","@type":"BlogPosting","headline":"데이터 블록 만드는 법 (1)","dateModified":"2020-11-18T00:00:00-06:00","datePublished":"2020-11-18T00:00:00-06:00","url":"https://fast-ai-kr.github.io/tutorials/datablock-siamese/","mainEntityOfPage":{"@type":"WebPage","@id":"https://fast-ai-kr.github.io/tutorials/datablock-siamese/"},"image":"https://fast-ai-kr.github.io/tutorials/images/datablock/siamese-block.png","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/tutorials/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://fast-ai-kr.github.io/tutorials/feed.xml" title="tutorials from fast.ai KR" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-177394312-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<link rel="shortcut icon" type="image/x-icon" href="/tutorials/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>데이터 블록 만드는 법 (1) | tutorials from fast.ai KR</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="데이터 블록 만드는 법 (1)" />
+<meta name="author" content="Chansung Park" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다." />
+<meta property="og:description" content="fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다." />
+<link rel="canonical" href="https://fast-ai-kr.github.io/tutorials/datablock-siamese/" />
+<meta property="og:url" content="https://fast-ai-kr.github.io/tutorials/datablock-siamese/" />
+<meta property="og:site_name" content="tutorials from fast.ai KR" />
+<meta property="og:image" content="https://fast-ai-kr.github.io/tutorials/images/datablock/siamese-block.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-11-18T00:00:00-06:00" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Chansung Park"},"description":"fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다.","@type":"BlogPosting","headline":"데이터 블록 만드는 법 (1)","dateModified":"2020-11-18T00:00:00-06:00","datePublished":"2020-11-18T00:00:00-06:00","url":"https://fast-ai-kr.github.io/tutorials/datablock-siamese/","mainEntityOfPage":{"@type":"WebPage","@id":"https://fast-ai-kr.github.io/tutorials/datablock-siamese/"},"image":"https://fast-ai-kr.github.io/tutorials/images/datablock/siamese-block.png","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://fast-ai-kr.github.io/tutorials/feed.xml" title="tutorials from fast.ai KR" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-177394312-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/tutorials/">tutorials from fast.ai KR</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/tutorials/about/">About Me</a><a class="page-link" href="/tutorials/search/">Search</a><a class="page-link" href="/tutorials/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">데이터 블록 만드는 법 (1)</h1><p class="page-description">fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-11-18T00:00:00-06:00" itemprop="datePublished">
+        Nov 18, 2020
+      </time>• 
+          <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span class="p-author h-card" itemprop="name">Chansung Park</span></span>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      2 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/tutorials/categories/#datablock">datablock</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/tutorials/categories/#siamese">siamese</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/tutorials/categories/#fastai">fastai</a>
+        
+      
+      </p>
+    
+
+    
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#DataBlock">class DataBlock[source]</a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-11-18-DataBlock API w Siamese.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h2 id="DataBlock" class="doc_header">
+<a class="anchor" href="#DataBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>class</code> <code>DataBlock</code><a href="https://github.com/fastai/fastai/tree/master/fastai/data/block.py#L58" class="source_link" style="float:right">[source]</a>
+</h2>
+<blockquote>
+<p><code>DataBlock</code>(<strong><code>blocks</code></strong>=<em><code>None</code></em>, <strong><code>dl_type</code></strong>=<em><code>None</code></em>, <strong><code>getters</code></strong>=<em><code>None</code></em>, <strong><code>n_inp</code></strong>=<em><code>None</code></em>, <strong><code>item_tfms</code></strong>=<em><code>None</code></em>, <strong><code>batch_tfms</code></strong>=<em><code>None</code></em>, <strong><code>get_items</code></strong>=<em><code>None</code></em>, <strong><code>splitter</code></strong>=<em><code>None</code></em>, <strong><code>get_y</code></strong>=<em><code>None</code></em>, <strong><code>get_x</code></strong>=<em><code>None</code></em>)</p>
+</blockquote>
+<p>Generic container to quickly build <code>Datasets</code> and <code>DataLoaders</code></p>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>DataBlock은 모델이 학습하는 데이터를 준비시키는 핵심 API 입니다.</p>
+<p>중요한 사실은 DataBlock은 일종의 <strong>템플릿</strong> 이라는 것입니다.
+실제로 데이터가 <strong>주입되었을 때</strong>, <strong>'이런 이런 식으로 동작한다'</strong> 를 정의하는 것이죠.</p>
+<p>상기 DataBlock API의 원형을 말로 풀어서 설명하면 다음과 같습니다.</p>
+<ol>
+<li>
+<p><code>dls = siamese.dataloaders(files)</code></p>
+</li>
+<li>
+<p>0 에서, 학습될 모든 데이터를 입력 받으면, 이를 모델에 입력 가능한 형태를 결정합니다. (<code>get_items</code>)</p>
+<ul>
+<li>여기서 전자의 '학습될 모든 데이터'란, 아무런 조치도 취해지지 않은 것입니다.</li>
+<li>후자의 '모델에 입력 가능한 형태'란, 입력/출력(타깃/레이블) 형식의 <code>tuple</code>입니다.<ul>
+<li>단 여기서는 완전한 <code>raw</code> 형식입니다.
+예) 입력: 이미지 파일 이름, 출력: 레이블 값 / 이름 (원-핫 인코딩되어 있지 않습니다)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>입력 가능한 형태의 데이터에서, 무엇을 입력으로 삼을지 결정합니다. (<code>get_x</code>)</p>
+</li>
+<li>
+<p>입력 가능한 형태의 데이터에서, 무엇을 레이블로 삼을지 결정합니다. (<code>get_y</code>)</p>
+</li>
+<li>
+<p><code>raw</code>한 형식의 '모델에 입력 가능한' 데이터를, 실제 모델에 입력 가능한 형식으로 바꿔줄 규칙을 지정합니다. (<code>blocks</code>)</p>
+<ul>
+<li>
+<code>blocks</code>는 두 개 이상의 여러개로 구성도 가능합니다.</li>
+<li>단 이때, 어디서 부터 어디까지가 입력이고 출력인지를 명시해야 하므로 <code>n_inp</code> 라는 인자가 사용됩니다.
+예. <code>DataBlock(..., n_inp=?,...)</code> =&gt; <code>n_inp</code>은 단순히 입력/출력을 구분하기 위한 인덱스 입니다.</li>
+</ul>
+</li>
+<li>
+<p>각 데이터 하나에 대한 변형을 하고 싶다면, 그 변형 규칙을 지정합니다. (<code>item_tfms</code>)</p>
+</li>
+<li>배치 단위의 데이터에 대한 변형을 하고 싶다면, 그 변형 규칙을 지정합니다. (<code>batch_tfms</code>)<ul>
+<li>배치 단위의 데이터 변형은 배치 단위로 GPU 에서 수행됩니다.</li>
+</ul>
+</li>
+</ol>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">siamese</span> <span class="o">=</span> <span class="n">DataBlock</span><span class="p">(</span>
+       <span class="n">blocks</span><span class="o">=</span><span class="p">(</span><span class="n">ImageTupleBlock</span><span class="p">,</span> <span class="n">CategoryBlock</span><span class="p">),</span> <span class="c1"># tuple 형식으로, 두 개 이상도 가능합니다. </span>
+    <span class="n">get_items</span><span class="o">=</span><span class="n">get_tuples</span><span class="p">,</span>                       <span class="c1"># 모든 데이터를 불러 들이는 함수를 지정합니다.</span>
+        <span class="n">get_x</span><span class="o">=</span><span class="n">get_x</span><span class="p">,</span>                            <span class="c1"># 불러와진 데이터에 대해서, 입력을 결정하는 함수를 지정합니다.</span>
+        <span class="n">get_y</span><span class="o">=</span><span class="n">get_y</span><span class="p">,</span>                            <span class="c1"># 불러와진 데이터에 대해서, 출력을 결정하는 함수를 지정합니다.</span>
+     <span class="n">splitter</span><span class="o">=</span><span class="n">splitter</span><span class="p">,</span>                         <span class="c1"># 학습/검증 데이터셋을 분리하는 함수를 지정합니다.</span>
+    <span class="n">item_tfms</span><span class="o">=</span><span class="n">Resize</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>                      <span class="c1"># 아이템 단위의 변환</span>
+   <span class="n">batch_tfms</span><span class="o">=</span><span class="p">[</span><span class="n">Normalize</span><span class="o">.</span><span class="n">from_stats</span><span class="p">(</span><span class="o">*</span><span class="n">imagenet_stats</span><span class="p">)]</span>   <span class="c1"># 배치 단위의 변환</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>앞선 설명을 Siamese 데이터 블록에 대입해서 설명해 보자면</p>
+<ol>
+<li>
+<p><code>siamese.dataloaders(files)</code> 에서 입력된 files는 단순히 Path 객체로 표현된 이미지 파일 경로의 목록 입니다.</p>
+</li>
+<li>
+<p>이미지 파일 경로의 목록이 <code>get_items</code>에 전달되고, 또 다른 이미지를 무작위로 하나 선택하고, 두 이미지가 같은지/다른지를 (타깃) 결정하여 &lt;= 이 세개의 내용을 반환합니다.</p>
+<ul>
+<li>그 다음, 두 이미지의 레이블을 look-up 합니다. look-up 방식은 정하기 나름입니다.</li>
+<li>이 예제에서의 레이블 look-up 방식은 상위 Parent 폴더 이름입니다.</li>
+</ul>
+</li>
+<li>
+<p><code>get_items</code>가 반환한 것은 세 개의 요소가 담긴 tuple 입니다.
+이 중 처음 두 개(이미지 1, 이미지 2)를 입력으로서 추출합니다 (<code>get_x</code>)</p>
+</li>
+<li>
+<p>그리고 마지막 한 개(레이블)을 출력으로서 추출합니다 (<code>get_y</code>)</p>
+</li>
+<li>
+<p>실제 모델에 입력 가능한 형식으로 바꿔줍니다.</p>
+<ul>
+<li>
+<p>입력은 <code>PILImage</code> 이미지 형식으로 준비되지만, 이후 <code>TensorImage</code> 형식으로 전환됩니다</p>
+<ul>
+<li>이 과정은 <code>ImageTupleBlock</code> 함수가 반환하는 <code>TransformBlock</code>을 보면 알 수 있습니다.</li>
+<li>
+<code>TransformBlock</code>은 <code>type_tfms</code>로 <code>PILImage</code>를 제안하지만, 추가적으로 <code>batch_tfms</code>에서는 <code>TensorImage</code>로의 전환을 제안합니다.</li>
+<li>여기서 등장한 <code>batch_tfms</code>는 최종적으로 <code>DataBlock</code> 에서 정의하는 <code>batch_tfms</code>와 머지되어, 나중에 수행됩니다.</li>
+</ul>
+</li>
+<li>
+<p>출력은 준비된 레이블을 원-핫 인코딩된 텐서 형태로 전환됩니다.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>각 데이터 하나에 대한 변형으로, 이미지 크기 조절을 수행합니다.</p>
+<ul>
+<li>이미지 크기 조절은 <code>Resize</code> 라는 <code>Transform</code> 형 객체를 활용합니다.</li>
+<li>적용하는 <code>Transform</code>은 준비된 데이터의 튜플(이미지1, 이미지2, 레이블)에 모두 적용되지만, 내부적으로 자신이 적용 가능한 녀석이 아니면 그대로 종료됩니다
+: 따라서 이미지1, 이미지2에 대한 변환이 수행됩니다.</li>
+</ul>
+</li>
+<li>
+<p>배치단위로 데이터를 변환합니다.</p>
+<ul>
+<li>4번과 마찬가지로 적용될 대상을 스스로 알아챕니다</li>
+<li>
+<code>Normalize.from_stats(*imagenet_stats)</code>는 이미지넷 데이터의 평균, 표준편차 값을 기준으로 데이터를 정규화 함을 의미합니다.</li>
+</ul>
+</li>
+</ol>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="fast-ai-kr/tutorials"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/tutorials/datablock-siamese/" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/tutorials/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/tutorials/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/tutorials/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/deep-diver" title="deep-diver"><svg class="svg-icon grey"><use xlink:href="/tutorials/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/algo_diver" title="algo_diver"><svg class="svg-icon grey"><use xlink:href="/tutorials/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
