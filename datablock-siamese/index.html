@@ -4,9 +4,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="twitter:card" content="summary" /><!-- Begin Jekyll SEO tag v2.6.1 -->
-<title>데이터 블록 만드는 법 (1) | tutorials from fast.ai KR</title>
+<title>데이터 블록 만드는 법 (Siamese) | tutorials from fast.ai KR</title>
 <meta name="generator" content="Jekyll v4.0.0" />
-<meta property="og:title" content="데이터 블록 만드는 법 (1)" />
+<meta property="og:title" content="데이터 블록 만드는 법 (Siamese)" />
 <meta name="author" content="Chansung Park" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다." />
@@ -18,7 +18,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-11-18T00:00:00-06:00" />
 <script type="application/ld+json">
-{"author":{"@type":"Person","name":"Chansung Park"},"description":"fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다.","@type":"BlogPosting","headline":"데이터 블록 만드는 법 (1)","dateModified":"2020-11-18T00:00:00-06:00","datePublished":"2020-11-18T00:00:00-06:00","url":"https://fast-ai-kr.github.io/tutorials/datablock-siamese/","mainEntityOfPage":{"@type":"WebPage","@id":"https://fast-ai-kr.github.io/tutorials/datablock-siamese/"},"image":"https://fast-ai-kr.github.io/tutorials/images/datablock/siamese-block.png","@context":"https://schema.org"}</script>
+{"author":{"@type":"Person","name":"Chansung Park"},"description":"fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다.","@type":"BlogPosting","headline":"데이터 블록 만드는 법 (Siamese)","dateModified":"2020-11-18T00:00:00-06:00","datePublished":"2020-11-18T00:00:00-06:00","url":"https://fast-ai-kr.github.io/tutorials/datablock-siamese/","mainEntityOfPage":{"@type":"WebPage","@id":"https://fast-ai-kr.github.io/tutorials/datablock-siamese/"},"image":"https://fast-ai-kr.github.io/tutorials/images/datablock/siamese-block.png","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/tutorials/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://fast-ai-kr.github.io/tutorials/feed.xml" title="tutorials from fast.ai KR" /><!-- the google_analytics_id gets auto inserted from the config file -->
 
@@ -27,9 +27,9 @@
 <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-177394312-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
 
 <link rel="shortcut icon" type="image/x-icon" href="/tutorials/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
-<title>데이터 블록 만드는 법 (1) | tutorials from fast.ai KR</title>
+<title>데이터 블록 만드는 법 (Siamese) | tutorials from fast.ai KR</title>
 <meta name="generator" content="Jekyll v4.0.0" />
-<meta property="og:title" content="데이터 블록 만드는 법 (1)" />
+<meta property="og:title" content="데이터 블록 만드는 법 (Siamese)" />
 <meta name="author" content="Chansung Park" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다." />
@@ -41,7 +41,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-11-18T00:00:00-06:00" />
 <script type="application/ld+json">
-{"author":{"@type":"Person","name":"Chansung Park"},"description":"fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다.","@type":"BlogPosting","headline":"데이터 블록 만드는 법 (1)","dateModified":"2020-11-18T00:00:00-06:00","datePublished":"2020-11-18T00:00:00-06:00","url":"https://fast-ai-kr.github.io/tutorials/datablock-siamese/","mainEntityOfPage":{"@type":"WebPage","@id":"https://fast-ai-kr.github.io/tutorials/datablock-siamese/"},"image":"https://fast-ai-kr.github.io/tutorials/images/datablock/siamese-block.png","@context":"https://schema.org"}</script>
+{"author":{"@type":"Person","name":"Chansung Park"},"description":"fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다.","@type":"BlogPosting","headline":"데이터 블록 만드는 법 (Siamese)","dateModified":"2020-11-18T00:00:00-06:00","datePublished":"2020-11-18T00:00:00-06:00","url":"https://fast-ai-kr.github.io/tutorials/datablock-siamese/","mainEntityOfPage":{"@type":"WebPage","@id":"https://fast-ai-kr.github.io/tutorials/datablock-siamese/"},"image":"https://fast-ai-kr.github.io/tutorials/images/datablock/siamese-block.png","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
@@ -103,7 +103,7 @@ window.onload = wrap_img;
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">데이터 블록 만드는 법 (1)</h1><p class="page-description">fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-11-18T00:00:00-06:00" itemprop="datePublished">
+    <h1 class="post-title p-name" itemprop="name headline">데이터 블록 만드는 법 (Siamese)</h1><p class="page-description">fastai에서는 데이터를 정의하는 방법으로 DataBlock API를 제안합니다. 각 인자가 의미하는 내용과, 실제 Siamese 공식 튜토리얼에 이 내용이 어떻게 적용되는지를 살펴봅니다.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-11-18T00:00:00-06:00" itemprop="datePublished">
         Nov 18, 2020
       </time>• 
           <span itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -111,7 +111,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      53 min read
+      55 min read
     
 </span></p>
 
@@ -159,10 +159,16 @@ window.onload = wrap_img;
 </li>
 <li class="toc-entry toc-h2"><a href="#blocks:-(ImageTupleBlock,-CategoryBlock)">blocks: (ImageTupleBlock, CategoryBlock) </a>
 <ul>
-<li class="toc-entry toc-h3"><a href="#ImageTuple,-ImageTupleBlock">ImageTuple, ImageTupleBlock </a></li>
-<li class="toc-entry toc-h3"><a href="#CategoryBlock">CategoryBlock </a></li>
+<li class="toc-entry toc-h3"><a href="#ImageTupleBlock">ImageTupleBlock </a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#ImageTuple">ImageTuple </a></li>
+<li class="toc-entry toc-h4"><a href="#TransformBlock">TransformBlock </a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#TransformBlock">class TransformBlock[source]</a></li>
+<li class="toc-entry toc-h2"><a href="#DataBlock의-생성">DataBlock의 생성 </a></li>
 </ul>
 </li>
 </ul><!--
@@ -724,7 +730,7 @@ window.onload = wrap_img;
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>37
-['Maine_Coon', 'american_bulldog', 'japanese_chin', 'basset_hound', 'scottish_terrier', 'saint_bernard', 'Bengal', 'wheaten_terrier', 'leonberger', 'great_pyrenees', 'Persian', 'german_shorthaired', 'english_cocker_spaniel', 'pomeranian', 'Bombay', 'miniature_pinscher', 'boxer', 'yorkshire_terrier', 'chihuahua', 'Siamese', 'Abyssinian', 'Egyptian_Mau', 'newfoundland', 'pug', 'english_setter', 'havanese', 'British_Shorthair', 'Birman', 'staffordshire_bull_terrier', 'beagle', 'Sphynx', 'samoyed', 'keeshond', 'Russian_Blue', 'american_pit_bull_terrier', 'shiba_inu', 'Ragdoll']
+['chihuahua', 'boxer', 'Bengal', 'Siamese', 'Birman', 'saint_bernard', 'British_Shorthair', 'english_cocker_spaniel', 'Russian_Blue', 'Persian', 'basset_hound', 'samoyed', 'wheaten_terrier', 'Abyssinian', 'Maine_Coon', 'Egyptian_Mau', 'havanese', 'keeshond', 'shiba_inu', 'american_bulldog', 'Ragdoll', 'pug', 'Sphynx', 'german_shorthaired', 'scottish_terrier', 'japanese_chin', 'newfoundland', 'yorkshire_terrier', 'american_pit_bull_terrier', 'english_setter', 'pomeranian', 'beagle', 'great_pyrenees', 'miniature_pinscher', 'staffordshire_bull_terrier', 'leonberger', 'Bombay']
 </pre>
 </div>
 </div>
@@ -827,8 +833,8 @@ window.onload = wrap_img;
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>((#5912) [6278,2369,1198,644,250,2710,2461,4586,2003,2407...],
- (#1478) [4011,2033,7385,1742,2895,6338,6697,4838,514,2478...])</pre>
+<pre>((#5912) [6496,3484,3766,4714,6079,5236,4999,2677,1968,7381...],
+ (#1478) [403,7083,7036,492,5483,259,6956,2144,906,575...])</pre>
 </div>
 
 </div>
@@ -899,8 +905,8 @@ window.onload = wrap_img;
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[(#5912) [Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/beagle_16.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/samoyed_11.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/pug_138.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/Bombay_81.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/saint_bernard_97.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/Siamese_125.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/great_pyrenees_54.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/pomeranian_35.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/scottish_terrier_84.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/samoyed_117.jpg')...],
- (#1478) [Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/Maine_Coon_84.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/Abyssinian_16.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/saint_bernard_134.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/Maine_Coon_265.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/Bengal_171.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/great_pyrenees_193.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/newfoundland_92.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/saint_bernard_10.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/Siamese_153.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/wheaten_terrier_141.jpg')...]]</pre>
+<pre>[(#5912) [Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/german_shorthaired_102.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/Russian_Blue_142.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/havanese_192.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/Sphynx_173.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/german_shorthaired_91.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/basset_hound_38.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/shiba_inu_173.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/samoyed_38.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/beagle_81.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/scottish_terrier_103.jpg')...],
+ (#1478) [Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/leonberger_122.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/samoyed_184.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/miniature_pinscher_95.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/chihuahua_8.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/pug_67.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/japanese_chin_144.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/Siamese_88.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/Sphynx_169.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/Egyptian_Mau_171.jpg'),Path('/Users/chansung/.fastai/data/oxford-iiit-pet/images/american_bulldog_181.jpg')...]]</pre>
 </div>
 
 </div>
@@ -1038,18 +1044,60 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="ImageTuple,-ImageTupleBlock">
-<a class="anchor" href="#ImageTuple,-ImageTupleBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a>ImageTuple, ImageTupleBlock<a class="anchor-link" href="#ImageTuple,-ImageTupleBlock"> </a>
+<h3 id="ImageTupleBlock">
+<a class="anchor" href="#ImageTupleBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a>ImageTupleBlock<a class="anchor-link" href="#ImageTupleBlock"> </a>
 </h3>
-<p>ImageTupleBlock은 모델에 주입되는 데이터를 대변합니다. 앞서 get_tuples 함수가 반환한 것은 단순히 이미지 파일 경로들의 목록 쯤으로 볼 수 있지만, 실제로는 이미지 파일이 열리고 =&gt; 픽셀값들을 tensor로 변환해야만 모델로 주입이 가능합니다.</p>
-<p>ImageTupleBlock은 단순히 TransformBlock 이라는 클래스의 인스턴스를 반환합니다. 해당 인스턴스를 생성할 때 지정되는 인자와 인자값을 주목하여 바라보겠습니다.</p>
+<p><strong>ImageTupleBlock</strong>은 모델에 주입되는 데이터를 대변합니다. 앞서 <strong>get_tuples</strong> 함수가 반환한 것은 단순히 이미지 파일 경로들의 목록 쯤으로 볼 수 있지만, 실제로는 이미지 파일이 열리고 =&gt; 픽셀값들을 tensor로 변환해야만 모델로 주입이 가능합니다.</p>
+<p><strong>ImageTupleBlock</strong>은 단순히 <strong>TransformBlock</strong> 이라는 클래스의 인스턴스를 반환합니다. 해당 인스턴스를 생성할 때 지정되는 인자와 인자값을 주목하여 바라보겠습니다.</p>
 <ul>
-<li>type_tfms<ul>
-<li>풀 네임은 Type Transform 입니다. 즉, 모델에 주입 가능한 형태로 형 변환을 하겠다는 의미입니다.</li>
+<li>
+<p><strong>type_tfms</strong></p>
+<ul>
+<li>풀 네임은 Type Transform 입니다. 즉, 모델에 주입 가능한 형태로 형 변환을 하겠다는 의미입니다. 형 변환을 담당하는 함수로는 <strong>ImageTuple.create</strong>가 지정되었습니다. 이 함수를 포함한 <strong>ImageTuple</strong> 클래스는 바로 아래에서 설명합니다.</li>
 </ul>
 </li>
-<li>batch_tfms<ul>
-<li>풀 네임은 Batch Transform 입니다. 즉, 무언가 변형을 가하는데 데이터 배치 단위로 변형을 수행하겠다는 의미입니다.</li>
+<li>
+<p><strong>batch_tfms</strong></p>
+<ul>
+<li>풀 네임은 Batch Transform 입니다. 즉, 무언가 변형을 가하는데 데이터 배치 단위로 변형을 수행하겠다는 의미입니다. 배치 단위의 변형은 <strong>IntToFloatTensor</strong>이 지정되었습니다. 이 내용도 아래에서 다루겠습니다.</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="ImageTuple">
+<a class="anchor" href="#ImageTuple" aria-hidden="true"><span class="octicon octicon-link"></span></a>ImageTuple<a class="anchor-link" href="#ImageTuple"> </a>
+</h4>
+<p><strong>ImageTuple</strong> 클래스는 기본적으로 <strong>fastuple</strong> 을 상속받습니다. <strong>fastuple</strong>은 단순히 <strong>tuple</strong> 이라는 파이선의 표준적인 클래스를 약간 확장시킨 것입니다. 기본적으로는 <strong>tuple</strong> 이라고 이해해도 무방합니다.</p>
+<p><strong>ImageTuple</strong> 클래스에서는 다음 두 개의 메서드를 구현합니다.</p>
+<ul>
+<li>
+<p><strong>create</strong></p>
+<ul>
+<li>
+<strong>ImageTupleBlock</strong>의 형 변환 역할을 수행자로 지정된 메서드입니다. 보다시피 파일<strong>들</strong>을 입력받고, 해당 파일들을 반복적으로 접근하여 <strong>PILImage.create</strong> 메서드를 통해 <strong>PILImage</strong>화 합니다.<ul>
+<li>
+<strong>PILImage.create</strong>는 단순히 이미지파일을 읽어서 이를 numpy array 형식으로 만들어준다고 보면 됩니다. 왜냐하면 <strong>PILImage</strong> 자체는 유명한 <strong>PIL</strong> 패키지의 <strong>Image</strong> 클래스를 상속받은 것이기 때문이죠. <strong>PILImage</strong>라는 별도의 클래스를 만든 이유는 편의성 때문입니다. 파일이름 외에 다양한 형식으로 이미지가 입력되더라도 이를 모두 단일화된 PIL Image로 변환해 주는 간단한 유틸리티 클래스입니다.</li>
+</ul>
+</li>
+<li>
+<strong>create</strong>는 클래스-메서드 입니다. 클래스-메서드의 첫 번째 인자에는 일반적으로 <strong>cls</strong> 라는 것이 있습니다. <strong>cls</strong>는 단순히 클래스 메서드를 품고있는 클래스 자체를 의미합니다. 따라서, <strong>return cls(...)</strong> 처럼 호출하면, 인자를 수용해서 해당 클래스 인스턴스를 만들고 반환하는 것이죠.</li>
+</ul>
+</li>
+<li>
+<p><strong>show</strong></p>
+<ul>
+<li>
+<strong>fastai</strong> 는 모델에 주입되는 데이터를 <strong>DataLoaders</strong> 라는 클래스로 래핑하는 것이 일반적입니다. 이 클래스에는 <strong>show_batch</strong> 라는 메서드가 있는데, 데이터를 화면에 출력하여 확인할 수 있도록 해 줍니다. 기본적인 이미지, 텍스트 등은 이미 화면에 출력되는 방법이 정의되어 있지만, 나만의 사용자 정의 데이터를 만들 때는 이를 직접 구현해 줘야 합니다.</li>
+<li>직접 구현해 줘야 하는 내용은 <strong>type_tfms</strong>에 지정된 클래스 (ImageTuple)에 <strong>show</strong> 라는 메서드를 정의하는 것입니다. 그러면, <strong>show_batch</strong> 메서드가 호출되었을 때, <strong>show</strong> 를 참조하여 각 데이터별 출력을 수행합니다.<ul>
+<li>이 메서드의 구현 내용은 아래 코드를 참조하기 바랍니다. </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1066,18 +1114,28 @@ window.onload = wrap_img;
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">ImageTuple</span><span class="p">(</span><span class="n">fastuple</span><span class="p">):</span>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fns</span><span class="p">):</span> 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">PILImage</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fns</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filenames</span><span class="p">):</span> 
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">PILImage</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">))</span>
     
     <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span> 
+        <span class="c1"># self는 tuple 이므로 </span>
+        <span class="c1"># 이미지1과 이미지2를 decompose 하여 들고옵니다</span>
         <span class="n">t1</span><span class="p">,</span><span class="n">t2</span> <span class="o">=</span> <span class="bp">self</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">)</span> <span class="ow">or</span> 
-           <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">)</span> <span class="ow">or</span> 
+        
+        <span class="c1"># 데이터 무결성을 체크합니다</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">)</span> <span class="ow">or</span> \
+           <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">)</span> <span class="ow">or</span> \
             <span class="n">t1</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">t2</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span> 
                 <span class="k">return</span> <span class="n">ctx</span>
-            
+        
+        <span class="c1"># 두 이미지 사이에 들어갈 검은색 "줄" 픽셀을 위한 tensor를 만듭니다.</span>
+        <span class="c1"># 검은색이라서 0 이라는 값으로 채워집니다.</span>
+        <span class="c1"># new_zeros에 나열된 인자는 tensor의 모양을 결정합니다.</span>
+        <span class="c1"># 즉, 마지막 10이 "줄"의 너비를 의미하죠.</span>
         <span class="n">line</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">new_zeros</span><span class="p">(</span><span class="n">t1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">10</span><span class="p">)</span>
         
+        <span class="c1"># 두 이미지(t1, t2) 사이에 "줄"을 이어붙인 tensor를 만들고</span>
+        <span class="c1"># fastai에서 이미지를 출력하는 기본 함수인 show_image를 사용하여 출력합니다.</span>
         <span class="k">return</span> <span class="n">show_image</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">t1</span><span class="p">,</span><span class="n">line</span><span class="p">,</span><span class="n">t2</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">ImageTupleBlock</span><span class="p">():</span>
@@ -1095,9 +1153,51 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="CategoryBlock">
-<a class="anchor" href="#CategoryBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a>CategoryBlock<a class="anchor-link" href="#CategoryBlock"> </a>
-</h3>
+<h4 id="TransformBlock">
+<a class="anchor" href="#TransformBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a>TransformBlock<a class="anchor-link" href="#TransformBlock"> </a>
+</h4>
+<p><strong>ImageTupleBlock</strong> 은 내부적으로 <strong>TransformBlock</strong>을 반환합니다. 우선 <strong>TransformBlock</strong>의 정의를 한번 살펴봅시다. 아래에서 보다시피 DataBlock API를 사용하기 위해서, 모든 block은 TransformBlock으로 만들어져야 한다고 이해할 수 있습니다. 단지 <strong>type_tfms</strong> 및 <strong>batch_tfms</strong>에 알맞은 행동을 넣어주면, 나머지는 fastai 에서 처리합니다.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h2 id="TransformBlock" class="doc_header">
+<a class="anchor" href="#TransformBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>class</code> <code>TransformBlock</code><a href="https://github.com/fastai/fastai/tree/master/fastai/data/block.py#L13" class="source_link" style="float:right">[source]</a>
+</h2>
+<blockquote>
+<p><code>TransformBlock</code>(<strong><code>type_tfms</code></strong>=<em><code>None</code></em>, <strong><code>item_tfms</code></strong>=<em><code>None</code></em>, <strong><code>batch_tfms</code></strong>=<em><code>None</code></em>, <strong><code>dl_type</code></strong>=<em><code>None</code></em>, <strong><code>dls_kwargs</code></strong>=<em><code>None</code></em>)</p>
+</blockquote>
+<p>A basic wrapper that links defaults transforms for the data block API</p>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="DataBlock의-생성">
+<a class="anchor" href="#DataBlock%EC%9D%98-%EC%83%9D%EC%84%B1" aria-hidden="true"><span class="octicon octicon-link"></span></a>DataBlock의 생성<a class="anchor-link" href="#DataBlock%EC%9D%98-%EC%83%9D%EC%84%B1"> </a>
+</h2>
+<p>이제 정말로 DataBlock을 생성해볼 차례입니다.</p>
+
 </div>
 </div>
 </div>
