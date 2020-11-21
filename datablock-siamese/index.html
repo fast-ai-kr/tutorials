@@ -111,7 +111,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      55 min read
+      56 min read
     
 </span></p>
 
@@ -168,7 +168,14 @@ window.onload = wrap_img;
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#TransformBlock">class TransformBlock[source]</a></li>
-<li class="toc-entry toc-h2"><a href="#DataBlock의-생성">DataBlock의 생성 </a></li>
+<li class="toc-entry toc-h2"><a href="#DataBlock의-생성">DataBlock의 생성 </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#get_x-(-입력의-결정-)">get_x ( 입력의 결정 ) </a></li>
+<li class="toc-entry toc-h3"><a href="#get_y-(-출력의-결정-)">get_y ( 출력의 결정 ) </a></li>
+<li class="toc-entry toc-h3"><a href="#splitter-(-학습/검증-데이터셋을-구분-방법-결정-)">splitter ( 학습/검증 데이터셋을 구분 방법 결정 ) </a></li>
+<li class="toc-entry toc-h3"><a href="#DataBlock-만들기">DataBlock 만들기 </a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul><!--
@@ -1196,7 +1203,15 @@ window.onload = wrap_img;
 <h2 id="DataBlock의-생성">
 <a class="anchor" href="#DataBlock%EC%9D%98-%EC%83%9D%EC%84%B1" aria-hidden="true"><span class="octicon octicon-link"></span></a>DataBlock의 생성<a class="anchor-link" href="#DataBlock%EC%9D%98-%EC%83%9D%EC%84%B1"> </a>
 </h2>
-<p>이제 정말로 DataBlock을 생성해볼 차례입니다.</p>
+<p>이제 정말로 <strong>DataBlock</strong>을 생성해볼 차례입니다. 이미 <strong>DataBlock</strong>을 만드는 코드 자체는 제일 처음에 살펴보았습니다. 여기서 살펴볼 내용은 <strong>DataBlock</strong>의 <strong>get_x</strong>, <strong>get_y</strong>, <strong>splitter</strong> 세 인자에 할당된 함수 내용입니다. 상기차원에서 각 세 인자의 역할은 다음과 같습니다.</p>
+<h3 id="get_x-(-입력의-결정-)">
+<a class="anchor" href="#get_x-(-%EC%9E%85%EB%A0%A5%EC%9D%98-%EA%B2%B0%EC%A0%95-)" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_x ( 입력의 결정 )<a class="anchor-link" href="#get_x-(-%EC%9E%85%EB%A0%A5%EC%9D%98-%EA%B2%B0%EC%A0%95-)"> </a>
+</h3>
+<ul>
+<li>get_x 함수는 get_tuples 가 반환한 목록을 하나씩 접근합니다.</li>
+<li>즉, (이미지 파일 경로 1, 이미지 파일 경로 2, 레이블) 튜플을 하나씩 처리합니다.</li>
+<li>해당 튜플 중 처음 두 개만이 입력 데이터이므로 튜플[:2] 를 반환합니다.</li>
+</ul>
 
 </div>
 </div>
@@ -1209,14 +1224,99 @@ window.onload = wrap_img;
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_x</span><span class="p">(</span><span class="n">t</span><span class="p">):</span> <span class="k">return</span> <span class="n">t</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
-<span class="k">def</span> <span class="nf">get_y</span><span class="p">(</span><span class="n">t</span><span class="p">):</span> <span class="k">return</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-<span class="k">def</span> <span class="nf">splitter</span><span class="p">(</span><span class="n">items</span><span class="p">):</span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="get_y-(-출력의-결정-)">
+<a class="anchor" href="#get_y-(-%EC%B6%9C%EB%A0%A5%EC%9D%98-%EA%B2%B0%EC%A0%95-)" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_y ( 출력의 결정 )<a class="anchor-link" href="#get_y-(-%EC%B6%9C%EB%A0%A5%EC%9D%98-%EA%B2%B0%EC%A0%95-)"> </a>
+</h3>
+<ul>
+<li>get_y 함수는 get_tuples 가 반환한 목록을 하나씩 접근합니다.</li>
+<li>즉, (이미지 파일 경로 1, 이미지 파일 경로 2, 레이블) 튜플을 하나씩 처리합니다.</li>
+<li>해당 튜플 중 마지막 하나만이 출력 데이터이므로 튜플[2]를 반환합니다.</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_y</span><span class="p">(</span><span class="n">t</span><span class="p">):</span> <span class="k">return</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="splitter-(-학습/검증-데이터셋을-구분-방법-결정-)">
+<a class="anchor" href="#splitter-(-%ED%95%99%EC%8A%B5/%EA%B2%80%EC%A6%9D-%EB%8D%B0%EC%9D%B4%ED%84%B0%EC%85%8B%EC%9D%84-%EA%B5%AC%EB%B6%84-%EB%B0%A9%EB%B2%95-%EA%B2%B0%EC%A0%95-)" aria-hidden="true"><span class="octicon octicon-link"></span></a>splitter ( 학습/검증 데이터셋을 구분 방법 결정 )<a class="anchor-link" href="#splitter-(-%ED%95%99%EC%8A%B5/%EA%B2%80%EC%A6%9D-%EB%8D%B0%EC%9D%B4%ED%84%B0%EC%85%8B%EC%9D%84-%EA%B5%AC%EB%B6%84-%EB%B0%A9%EB%B2%95-%EA%B2%B0%EC%A0%95-)"> </a>
+</h3>
+<ul>
+<li>두 개(학습/검증)를 포함한 튜플 형식을 반환합니다.</li>
+<li>각각 리스트이며, 리스트에는 인덱스 목록이 들어 있습니다. get_items 에서 누구 인덱스를 학습용으로, 누구 인덱스를 검증용으로 둘 것인지를 나열한 것입니다.</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">splitter</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">get_split_files</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> 
         <span class="k">return</span> <span class="p">[</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span><span class="p">,(</span><span class="n">f1</span><span class="p">,</span><span class="n">f2</span><span class="p">,</span><span class="n">same</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="k">if</span> <span class="n">get_split</span><span class="p">(</span><span class="n">f1</span><span class="p">)</span><span class="o">==</span><span class="n">i</span><span class="p">]</span>
     
     <span class="k">return</span> <span class="n">get_split_files</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="n">get_split_files</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
 
-<span class="n">siamese</span> <span class="o">=</span> <span class="n">DataBlock</span><span class="p">(</span>   
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="DataBlock-만들기">
+<a class="anchor" href="#DataBlock-%EB%A7%8C%EB%93%A4%EA%B8%B0" aria-hidden="true"><span class="octicon octicon-link"></span></a>DataBlock 만들기<a class="anchor-link" href="#DataBlock-%EB%A7%8C%EB%93%A4%EA%B8%B0"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">siamese</span> <span class="o">=</span> <span class="n">DataBlock</span><span class="p">(</span>   
     <span class="n">get_items</span><span class="o">=</span><span class="n">get_tuples</span><span class="p">,</span>                       <span class="c1"># 모든 데이터를 불러 들이는 함수를 지정합니다.</span>
         <span class="n">get_x</span><span class="o">=</span><span class="n">get_x</span><span class="p">,</span>                            <span class="c1"># 불러와진 데이터에 대해서, 입력을 결정하는 함수를 지정합니다.</span>
         <span class="n">get_y</span><span class="o">=</span><span class="n">get_y</span><span class="p">,</span>                            <span class="c1"># 불러와진 데이터에 대해서, 출력을 결정하는 함수를 지정합니다.</span>
