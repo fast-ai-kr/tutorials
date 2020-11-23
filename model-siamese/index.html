@@ -111,7 +111,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      2 min read
+      3 min read
     
 </span></p>
 
@@ -173,6 +173,7 @@ window.onload = wrap_img;
 <a class="anchor" href="#SiameseModel-%EA%B0%9C%EC%9A%94" aria-hidden="true"><span class="octicon octicon-link"></span></a>SiameseModel 개요<a class="anchor-link" href="#SiameseModel-%EA%B0%9C%EC%9A%94"> </a>
 </h2>
 <p>우선 Siamese 모델이 하는 일을 다시 한번 생각해 봅시다. 이 모델은 두 이미지를 입력받아서, 두 이미지가 같은 부류에 속하는지를 판단하여 같다면 <strong>True</strong>, 다르다면 <strong>False</strong> 라는 결과를 예측합니다.</p>
+<p>아래의 코드는 <strong>SiameseModel</strong> 이라는 간단한 모듈을 보여줍니다. 이 모듈은 PyTorch의 <strong>nn.Module</strong> 대신, fastai의 <strong>Module</strong>을 상속받아서 구현되었습니다. <strong>nn.Module</strong>과 <strong>Module</strong>의 차이는 단순히 <strong><strong>init</strong></strong> 메서드 내에서, <strong>super.<strong>init</strong></strong> 부모 메서드를 호출할 필요가 있는지 없는지 입니다. 따라서, <strong>super.<strong>init</strong></strong> 을 호출한다면, <strong>nn.Module</strong>을 사용해도 무방한 것이죠.</p>
 
 </div>
 </div>
@@ -189,8 +190,8 @@ window.onload = wrap_img;
         <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">encoder</span><span class="p">,</span><span class="n">head</span>
     
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">):</span>
-        <span class="n">ftrs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">x2</span><span class="p">)],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">ftrs</span><span class="p">)</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">x2</span><span class="p">)],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -200,6 +201,14 @@ window.onload = wrap_img;
 </div>
     
 
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>아래의 <strong>Module</strong> 닥스트링을 통해서, 해당 설명을 확인해 보기 바랍니다.</p>
+
+</div>
+</div>
+</div>
     
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -229,6 +238,65 @@ window.onload = wrap_img;
 </div>
     
 
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>SiameseModel</strong>이 구현된 방식을 한번 살펴보겠습니다. 우선 생성자인 <strong><strong>init</strong></strong> 메서드는 두 개의 인자 (<strong>encoder</strong>, <strong>head</strong>)를 수용합니다. 이 둘은 각각 일반적인 CNN 모델에서 흔히 알고 있는 특징 추출을 담당하는 <strong>Convolutional Layers</strong> 와 분류를 담당하는 <strong>Fully Connected Layers</strong> 를 의미합니다.</p>
+<p>이 두개를 입력받는 이유는 <strong>전이학습</strong>을 위해서 입니다. 일반적으로 <strong>전이학습</strong>은 사전에 훈련된 모델의 <strong>Convolutional Layers</strong>의 가중치를 그대로 활용합니다. 즉, 수 많은 이미지로부터 다양한 특징을 추출하는 능력을 이어받는 것이죠. 따라서, 이 부분이 <strong>encoder</strong>에 해당합니다.</p>
+<p>하지만, 사전 훈련된 모델이 풀고자 했던 문제와 내가 현재 풀고자 하는 문제는 다릅니다. 분류 할 범주의 개수도 다르며, 종류도 다릅니다. 따라서 마지막 <strong>head</strong> 부분을 나의 문제에 맞게 구조를 잡은 다음, 이를 <strong>encoder</strong>와 결합해 주는 것입니다.</p>
+<p><strong>fastai</strong> 에서는 사전 훈련된 모델로부터 <strong>encoder</strong> 부분을 추출하는 편리한 메서드로, <strong>create_body</strong>를 제공합니다. 또한 일반적인 구조의 <strong>head</strong>를 만들어주는 <strong>create_head</strong> 메서드도 함께 제공합니다. 즉, <strong>create_body</strong>로 <strong>encoder</strong>를 추출한 다음, <strong>create_head</strong>로 생성된 부분을 <strong>encoder</strong>와 결합해 주면 되는 것입니다.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/tutorials/images/copied_from_nb/datablock/siamese-model-transfer-learning.png" alt=""></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>이 내용을 숙지한 상태로, 다시한번 <strong>SiameseModel</strong>의 구현 코드를 살펴봅시다.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">SiameseModel</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">encoder</span><span class="p">,</span><span class="n">head</span>
+    
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">):</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">x2</span><span class="p">)],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong><strong>init</strong></strong> 생성자는 단순히 <strong>encoder</strong>와 <strong>head</strong>를 수용하여, 내부 변수에 저장합니다. 그리고, <strong>forward</strong>는 <strong>x1</strong>과 <strong>x2</strong> 두 개의 인자를 수용하는데, 각각은 비교되어야 할 서로다른 이미지 두 개를 의미합니다. 각 이미지를 <strong>encoder</strong>에 전달한 다음, <strong>torch.cat</strong> 함수를 통해 그 결과를 이어 붙여줍니다. 즉, 원래 <strong>encoder</strong>가 출력하는 결과의 두 배의 양이되는 것이죠. 다만, 양은 두개지만 서로다른 <strong>encoder</strong>를 사용하는 것이 아니므로, 가중치는 공유됩니다.</p>
+<p>그 다음, 이어 붙여진 결과를 단순히 <strong>head</strong>로 삽입해 주는것으로 <strong>SiameseModel</strong>의 역할은 끝이납니다.</p>
+
+</div>
+</div>
+</div>
     
     
 <div class="cell border-box-sizing code_cell rendered">
