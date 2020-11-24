@@ -111,7 +111,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      3 min read
+      4 min read
     
 </span></p>
 
@@ -136,10 +136,15 @@ window.onload = wrap_img;
   <div class="post-content e-content" itemprop="articleBody">
     <ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#SiameseModel-개요">SiameseModel 개요 </a></li>
-<li class="toc-entry toc-h2"><a href="#Module">class Module[source]</a>
+<li class="toc-entry toc-h2"><a href="#Module">class Module[source]</a></li>
+<li class="toc-entry toc-h2"><a href="#encoder(body)와-head">encoder(body)와 head </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#모델의-메타데이터">모델의 메타데이터 </a>
 <ul>
 <li class="toc-entry toc-h4"><a href="#create_body">create_body[source]</a></li>
 <li class="toc-entry toc-h4"><a href="#create_head">create_head[source]</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul><!--
@@ -297,6 +302,29 @@ window.onload = wrap_img;
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="encoder(body)와-head">
+<a class="anchor" href="#encoder(body)%EC%99%80-head" aria-hidden="true"><span class="octicon octicon-link"></span></a>encoder(body)와 head<a class="anchor-link" href="#encoder(body)%EC%99%80-head"> </a>
+</h2>
+<p>그러면 이제 우리가 해야할 일은 <strong>encoder</strong>와 <strong>head</strong>를 만들어 주는 것입니다. 직접 <strong>encoder</strong>를 만들어서 밑바닥부터 학습을 진행해도 좋지만, 이미 이미지넷을 통해서 사전에 학습된 훌륭한 모델들이 존재합니다. 가령 <strong>ResNet</strong>, <strong>xResNet</strong>, <strong>EfficientNet</strong> 등과 같은것이 있을 수 있겠죠.</p>
+<p><strong>fastai</strong>에서는 기본적으로 <strong>ResNet</strong>, <strong>xResNet</strong>, <strong>VGG</strong>, <strong>AlexNet</strong>, <strong>DenseNet</strong>, <strong>SqueezeNet</strong> 을 기본적으로 제공합니다. 그 중 <strong>ResNet</strong>은 사실 PyTorch에서 제공하는 모델을 그대로 활용하죠. 다만 <strong>fastai</strong>에서 제공되는 모델은 추가적인 메타데이터가 함께 딸려옵니다. 이 메타데이터가 의미하는바를 먼저 알아보도록 하겠습니다.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="모델의-메타데이터">
+<a class="anchor" href="#%EB%AA%A8%EB%8D%B8%EC%9D%98-%EB%A9%94%ED%83%80%EB%8D%B0%EC%9D%B4%ED%84%B0" aria-hidden="true"><span class="octicon octicon-link"></span></a>모델의 메타데이터<a class="anchor-link" href="#%EB%AA%A8%EB%8D%B8%EC%9D%98-%EB%A9%94%ED%83%80%EB%8D%B0%EC%9D%B4%ED%84%B0"> </a>
+</h3>
+<p>다음은 <strong>resnet34</strong>에 대한 메타데이터가 가진 정보를 보여줍니다. <strong>fastai</strong>에서 제공하는 <strong>model_meta</strong> 딕셔너리 정보를 통해서, 각 모델의 메타데이터 정보를 조회할 수 있습니다.</p>
+
+</div>
+</div>
+</div>
     
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -332,41 +360,37 @@ window.onload = wrap_img;
 </div>
     
 
-    
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
+<div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">model_meta</span><span class="p">[</span><span class="n">resnet50</span><span class="p">]</span>
-</pre></div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>보다시피 세 개의 키값(<strong>cut</strong>, <strong>split</strong>, <strong>stats</strong>) 에 대한 정보를 가지고 있습니다. 각 키값이 의미하는바는 다음과 같습니다.</p>
+<ul>
+<li>
+<strong>cut</strong><ul>
+<li>CNN 구조에서, Fully Connected Layers가 시작되는 지점의 인덱스를 의미합니다. 즉, 개념적으로 생각해 보자면 <strong>resnet34[-2]</strong> 와 같이 접근하면, Fully Connected Layers를 제외한 나머지 Convolutional Layers 들 만을 가지고 올 수 있게 되는 것이죠. 이는 사전학습된 모델에서 Fully Connected Layer를 제거하고, 나만의 문제에 적합한 Fully Connected Layers를 추가하는 전이학습을 수행할 때 매우 도움이 되는 정보입니다.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<strong>split</strong><ul>
+<li>split은 전이학습시 <strong>freeze</strong>되어야 하는 부분을 포함해서, 차별적 학습률이 적용된 파라미터 그룹을 구분짓습니다. <strong>fastai</strong>가 제공하는 모델 학습 시스템은 계층별로 차별적인 학습률을 둘 수 있도록 설계되어 있고, <strong>split</strong> 정보에는 차별적인 학습률이 적용된 계층 그룹에 대한 정보가 담겨 있습니다.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<strong>stats</strong><ul>
+<li>사전 학습된 모델이 학습한 데이터의 통계적 정보(<strong>평균</strong>, <strong>표준편차</strong>)를 저장합니다. 특정 모델이 학습한 데이터를 구성하는 값의 분포를 알고, 새로운 데이터를 그 분포에 맞도록 변형해 주면 전이학습의 효과를 좀 더 끌어올릴 수 있는 전략에 사용됩니다. 이 정보는 <strong>DataBlock</strong> 구성시 <strong>batch_tfms</strong>에 자동으로 삽입됩니다. </li>
+</ul>
+</li>
+</ul>
 
-    </div>
 </div>
 </div>
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>{'cut': -2,
- 'split': &lt;function fastai.vision.learner._resnet_split(m)&gt;,
- 'stats': ([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])}</pre>
 </div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-    
-
     
     
 <div class="cell border-box-sizing code_cell rendered">
