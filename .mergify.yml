@@ -5,7 +5,7 @@ pull_request_rules:
     actions:
       merge:
         method: merge
-  - name: automatic merge of bot 🤖 (low priority)
+  - name: Automatic merge of bot 🤖 (low priority)
     conditions:
       - author~=^dependabot(|-preview)\[bot\]$
       - check-success=build-site
